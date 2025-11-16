@@ -1,3 +1,5 @@
+import { VALIDATION } from "../constants";
+
 /**
  * Validation utilities for GitHub filters
  */
@@ -115,10 +117,10 @@ export function validateFilterName(name: string): ValidationResult {
     };
   }
 
-  if (name.length > 50) {
+  if (name.length > VALIDATION.FILTER_NAME_MAX_LENGTH) {
     return {
       isValid: false,
-      error: "Filter name must be 50 characters or less",
+      error: `Filter name must be ${VALIDATION.FILTER_NAME_MAX_LENGTH} characters or less`,
     };
   }
 

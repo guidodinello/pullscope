@@ -5,6 +5,8 @@
   import { waitForElement, debounce } from "@/lib/utils/dom";
   import { logger } from "@/lib/utils/logger";
   import type { PRFilter } from "@/lib/types/filter";
+  import type { ExtensionMessage } from "@/lib/types/messages";
+  import { MESSAGE_ACTIONS, WAIT_TIMEOUTS, DEBOUNCE_DELAYS, TOAST_DURATION } from "@/lib/constants";
   import Toast from "@/lib/components/Toast.svelte";
 
   // Component state
@@ -25,7 +27,7 @@
 
     try {
       // Wait for the search input to be available
-      await waitForElement("#js-issues-search", 5000);
+      await waitForElement("#js-issues-search", WAIT_TIMEOUTS.INITIAL_LOAD);
 
       logger.debug("Enabled filters:", enabledFilters);
 
@@ -57,7 +59,7 @@
       _filtersApplied = false;
       tryApplyFilters();
     }
-  }, 500);
+  }, DEBOUNCE_DELAYS.URL_CHANGE);
 
   // Handle navigation within GitHub (for SPA navigation)
   function handleURLChange() {
@@ -78,7 +80,7 @@
 
     try {
       // Wait for search input to be available
-      await waitForElement("#js-issues-search", 2000);
+      await waitForElement("#js-issues-search", WAIT_TIMEOUTS.FILTER_TOGGLE);
 
       if (filter.enabled) {
         // Filter was enabled - add it
@@ -129,10 +131,10 @@
     cleanupFunctions.push(() => window.removeEventListener("popstate", handleURLChange));
 
     // Set up message listener
-    const messageHandler = (message: { action: string; filter?: PRFilter }) => {
-      if (message.action === "applyFiltersNow") {
+    const messageHandler = (message: ExtensionMessage) => {
+      if (message.action === MESSAGE_ACTIONS.APPLY_FILTERS_NOW) {
         tryApplyFilters();
-      } else if (message.action === "toggleFilter" && message.filter) {
+      } else if (message.action === MESSAGE_ACTIONS.TOGGLE_FILTER) {
         handleFilterToggle(message.filter);
       }
     };
@@ -151,7 +153,7 @@
   <Toast
     message={toastMessage}
     type={toastType}
-    duration={3000}
+    duration={TOAST_DURATION.DEFAULT}
     onClose={() => (toastMessage = "")}
   />
 {/if}

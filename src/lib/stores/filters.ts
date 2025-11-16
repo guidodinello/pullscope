@@ -1,11 +1,7 @@
 import { writable, derived, get } from "svelte/store";
 import type { PRFilter, NewPRFilter } from "../types/filter";
 import { logger } from "../utils/logger";
-
-/**
- * Storage key for filters in browser.storage
- */
-const STORAGE_KEY = "prFilters";
+import { STORAGE_KEYS } from "../constants";
 
 /**
  * Store state interface
@@ -50,8 +46,8 @@ function createFilterStore() {
       update((state) => ({ ...state, isLoading: true, error: null }));
 
       try {
-        const data = await browser.storage.sync.get(STORAGE_KEY);
-        const filters = (data[STORAGE_KEY] || []) as PRFilter[];
+        const data = await browser.storage.sync.get(STORAGE_KEYS.PR_FILTERS);
+        const filters = (data[STORAGE_KEYS.PR_FILTERS] || []) as PRFilter[];
 
         logger.debug("Loaded filters from storage", filters);
         update((state) => ({
@@ -63,8 +59,8 @@ function createFilterStore() {
         // Set up storage change listener
         if (!storageListener) {
           storageListener = (changes, areaName) => {
-            if (areaName === "sync" && changes[STORAGE_KEY]) {
-              const newFilters = changes[STORAGE_KEY].newValue || [];
+            if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
+              const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
               logger.debug("Storage changed, updating filters", newFilters);
               update((state) => ({ ...state, filters: newFilters }));
             }
@@ -95,7 +91,7 @@ function createFilterStore() {
         };
 
         const updatedFilters = [...state.filters, newFilter];
-        await browser.storage.sync.set({ [STORAGE_KEY]: updatedFilters });
+        await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
 
         update((s) => ({ ...s, filters: updatedFilters, error: null }));
         logger.info("Filter added successfully", newFilter);
@@ -121,7 +117,7 @@ function createFilterStore() {
         const state = get({ subscribe });
         const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
 
-        await browser.storage.sync.set({ [STORAGE_KEY]: updatedFilters });
+        await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
         update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
         logger.info("Filter updated successfully", filter);
@@ -146,7 +142,7 @@ function createFilterStore() {
         const state = get({ subscribe });
         const updatedFilters = state.filters.filter((f) => f.id !== id);
 
-        await browser.storage.sync.set({ [STORAGE_KEY]: updatedFilters });
+        await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
         update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
         logger.info("Filter deleted successfully", id);
@@ -173,7 +169,7 @@ function createFilterStore() {
           f.id === id ? { ...f, enabled: !f.enabled } : f
         );
 
-        await browser.storage.sync.set({ [STORAGE_KEY]: updatedFilters });
+        await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
         update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
         logger.info("Filter toggled successfully", id);

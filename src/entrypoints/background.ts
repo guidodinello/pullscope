@@ -1,5 +1,11 @@
 import { getFilters, saveFilters } from "@/lib/storage";
 import type { PRFilter } from "@/lib/types/filter";
+import type {
+  ExtensionMessage,
+  MessageResponse,
+  ApplyFiltersNowMessage,
+} from "@/lib/types/messages";
+import { MESSAGE_ACTIONS, GITHUB_PATTERNS, CONTEXT_MENU_IDS } from "@/lib/constants";
 import { logger } from "@/lib/utils/logger";
 
 export default defineBackground(() => {
@@ -32,7 +38,6 @@ export default defineBackground(() => {
         logger.info("Default filters installed");
       }
 
-      // Open options page on install to configure filters
       browser.tabs.create({
         url: browser.runtime.getURL("/options.html"),
       });
@@ -41,9 +46,8 @@ export default defineBackground(() => {
 
   // Listen for commands from browser action
   browser.runtime.onMessage.addListener(
-    async (message, _sender): Promise<{ success: boolean; message?: string } | undefined> => {
-      if (message.action === "applyFilters") {
-        // Get the current active tab
+    async (message: ExtensionMessage, _sender): Promise<MessageResponse | undefined> => {
+      if (message.action === MESSAGE_ACTIONS.APPLY_FILTERS) {
         const tabs = await browser.tabs.query({
           active: true,
           currentWindow: true,
@@ -52,12 +56,15 @@ export default defineBackground(() => {
 
         if (currentTab?.id) {
           // Check if the tab URL is a GitHub PR page
-          if (currentTab.url?.includes("github.com") && currentTab.url?.includes("/pulls")) {
+          if (
+            currentTab.url?.includes(GITHUB_PATTERNS.PR_PAGE_PARTIAL) &&
+            currentTab.url?.includes(GITHUB_PATTERNS.PR_PATH_PARTIAL)
+          ) {
             // Send message to content script to apply filters
             try {
               await browser.tabs.sendMessage(currentTab.id, {
-                action: "applyFiltersNow",
-              });
+                action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
+              } satisfies ApplyFiltersNowMessage);
               return { success: true };
             } catch (err) {
               logger.error("Failed to send message to tab", err);
@@ -72,23 +79,24 @@ export default defineBackground(() => {
         return { success: false, message: "Not a GitHub PR page" };
       }
 
-      // Return undefined for unhandled messages
       return undefined;
     }
   );
 
   // Add context menu for quickly applying filters
   browser.contextMenus?.create({
-    id: "apply-pr-filters",
+    id: CONTEXT_MENU_IDS.APPLY_PR_FILTERS,
     title: "Apply PR Filters",
     contexts: ["page"],
-    documentUrlPatterns: ["*://github.com/*/*/pulls*"],
+    documentUrlPatterns: [GITHUB_PATTERNS.PR_PAGE_QUERY],
   });
 
   // Handle context menu clicks
   browser.contextMenus?.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "apply-pr-filters" && tab?.id) {
-      browser.tabs.sendMessage(tab.id, { action: "applyFiltersNow" });
+    if (info.menuItemId === CONTEXT_MENU_IDS.APPLY_PR_FILTERS && tab?.id) {
+      browser.tabs.sendMessage(tab.id, {
+        action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
+      } satisfies ApplyFiltersNowMessage);
     }
   });
 });

@@ -1,5 +1,5 @@
-// src/lib/github.ts - GitHub related utilities
 import { logger } from "./utils/logger";
+import { GITHUB_PATTERNS } from "./constants";
 
 /**
  * Common GitHub search input selectors
@@ -9,14 +9,13 @@ const SEARCH_INPUT_SELECTORS = [
   "#js-issues-search", // Primary selector
   'input[name="q"]', // Fallback selector
   'input[aria-label*="Search"]', // Aria-based fallback
-];
+] as const;
 
 /**
  * Check if the current URL is a GitHub pull requests page
  */
 export function isGitHubPRPage(url: string): boolean {
-  const githubPRRegex = /^https:\/\/github\.com\/[^/]+\/[^/]+\/pulls(\/.*|\?.*)?$/;
-  return githubPRRegex.test(url);
+  return GITHUB_PATTERNS.PR_PAGE_REGEX.test(url);
 }
 
 /**

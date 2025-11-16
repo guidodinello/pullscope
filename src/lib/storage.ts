@@ -1,23 +1,22 @@
 import type { PRFilter, NewPRFilter } from "./types/filter";
 import { logger } from "./utils/logger";
-
-const filtersKey = "prFilters";
+import { STORAGE_KEYS } from "./constants";
 
 /**
  * Save PR filters to browser storage
  */
 export async function saveFilters(filters: PRFilter[]): Promise<void> {
-  await browser.storage.sync.set({ [filtersKey]: filters });
+  await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: filters });
 }
 
 /**
  * Retrieve PR filters from browser storage
  */
 export async function getFilters(): Promise<PRFilter[]> {
-  const data = await browser.storage.sync.get(filtersKey);
-  logger.debug("getFilters", data.prFilters || []);
+  const data = await browser.storage.sync.get(STORAGE_KEYS.PR_FILTERS);
+  logger.debug("getFilters", data[STORAGE_KEYS.PR_FILTERS] || []);
 
-  return data.prFilters || [];
+  return data[STORAGE_KEYS.PR_FILTERS] || [];
 }
 
 /**
