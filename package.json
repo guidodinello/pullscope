@@ -1,18 +1,20 @@
 {
-  "name": "svelte-5-extension",
-  "description": "A starter template for building browser extensions with Svelte 5, Tailwind 4, and WXT",
+  "name": "pullscope",
+  "description": "Automatically apply custom filters to GitHub Pull Request pages with real-time sync",
   "private": true,
   "version": "0.0.1",
   "keywords": [
+    "github",
+    "pull-request",
+    "filters",
+    "browser-extension",
+    "chrome-extension",
+    "firefox-extension",
     "wxt",
     "svelte",
     "svelte-5",
     "tailwind",
-    "tailwind-4",
-    "browser-extension",
-    "chrome-extension",
-    "firefox-extension",
-    "extension"
+    "tailwind-4"
   ],
   "scripts": {
     "dev": "wxt",
