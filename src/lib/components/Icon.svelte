@@ -1,6 +1,8 @@
 <script lang="ts">
   /**
    * Reusable icon component with consistent SVG icons
+   * Note: Using @html with static, hardcoded SVG paths is safe
+   * The Firefox warning is a false positive - no user input is used
    */
   type IconName = "toggle-on" | "toggle-off" | "edit" | "delete" | "check" | "x" | "plus";
 
@@ -9,6 +11,7 @@
     class?: string;
   }>();
 
+  // Static SVG path data - no user input, completely safe
   const icons: Record<IconName, string> = {
     "toggle-on": `
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

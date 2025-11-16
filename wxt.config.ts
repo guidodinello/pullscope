@@ -20,16 +20,11 @@ export default defineConfig({
     browser_specific_settings: {
       gecko: {
         id: "pullscope@guidodinello.dev",
+        // Required by Firefox for all new extensions. This extension does not collect any user data
+        // @ts-ignore
+        data_collection_permissions: { required: ["none"] },
       },
     },
-    // entrypoints: {
-    //   // Existing entry points
-    //   background: 'src/entrypoints/background.ts',
-    //   popup: 'src/entrypoints/popup/popup.ts',
-    //   dashboard: 'src/entrypoints/dashboard/dashboard.ts',
-    //   // Updated content script entry point
-    //   content: 'src/entrypoints/content/content.ts'
-    // },
   },
   vite: () => ({
     plugins: [wasm(), topLevelAwait(), tailwindcss()],
