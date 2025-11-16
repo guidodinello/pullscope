@@ -4,14 +4,44 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-  --color-neon-pink: #f535aa;
-  --color-neon-blue: #05d9ff;
+  /* Primary brand colors */
+  --color-primary: #05d9ff;
+  --color-primary-hover: #04b8d9;
+  --color-primary-dark: #0396b3;
+
+  /* Accent color */
+  --color-accent: #f535aa;
+  --color-accent-hover: #dc2f99;
+
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-success-dark: #065f46;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-dark: #991b1b;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-dark: #92400e;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+  --color-info-dark: #1e40af;
+
+  /* Neutrals */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
 }
 
 /* Base
 *************************************************/
 @layer base {
-  /* * {
-    @apply outline-neon-pink outline-3 border-neon-blue border-4;
-  } */
+  body {
+    @apply bg-bg-secondary text-text-primary;
+  }
 }
