@@ -1,0 +1,14 @@
+# CODEOWNERS file
+# This file defines code ownership for the repository.
+# GitHub will automatically request reviews from code owners when a PR is created.
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owner
+* @guidodinello
+
+# Branch protection rules should also be configured in GitHub settings:
+# Settings → Branches → Add branch protection rule for "main"
+# - Require pull request reviews before merging
+# - Require review from Code Owners
+# - Require status checks to pass before merging (optional)
