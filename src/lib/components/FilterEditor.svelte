@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { PRFilter } from "@/lib/types/filter";
-  import { addFilter, updateFilter } from "@/lib/storage";
+  import { filterStore } from "@/lib/stores/filters";
   import { validateFilter, validateFilterName } from "@/lib/utils/validation";
+  import { cn } from "@/lib/utils/cn";
   import ErrorDisplay from "./ErrorDisplay.svelte";
 
   // Props
@@ -55,9 +56,11 @@
       isSaving = true;
       error = "";
 
+      let success = false;
+
       if (filter) {
         // Update existing filter
-        await updateFilter({
+        success = await filterStore.update({
           ...filter,
           name: name.trim(),
           value: value.trim(),
@@ -65,15 +68,20 @@
         });
       } else {
         // Add new filter
-        await addFilter({
+        const newFilter = await filterStore.add({
           name: name.trim(),
           value: value.trim(),
           enabled,
         });
+        success = newFilter !== null;
       }
 
-      // Call the onSave callback to notify parent
-      onSave();
+      if (success) {
+        // Call the onSave callback to notify parent
+        onSave();
+      } else {
+        error = "Failed to save filter. Please try again.";
+      }
     } catch {
       error = "Failed to save filter. Please try again.";
     } finally {
@@ -82,7 +90,7 @@
   }
 </script>
 
-<div class="rounded-lg bg-white p-6 shadow">
+<div class="bg-bg-primary rounded-lg p-6 shadow">
   <h2 class="mb-4 text-xl font-semibold">
     {filter ? "Edit Filter" : "Add New Filter"}
   </h2>
@@ -91,46 +99,52 @@
 
   <form onsubmit={handleSubmit}>
     <div class="mb-4">
-      <label for="name" class="mb-1 block text-sm font-medium text-gray-700"> Filter Name </label>
+      <label for="name" class="text-text-primary mb-1 block text-sm font-medium">
+        Filter Name
+      </label>
       <input
         type="text"
         id="name"
         bind:value={name}
-        class="focus:ring-neon-blue w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 {nameError
-          ? 'border-red-500'
-          : 'border-gray-300'}"
+        class={cn(
+          "focus:ring-primary w-full rounded border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+          nameError ? "border-error" : "border-border"
+        )}
         placeholder="e.g., Hide Dependabot PRs"
         aria-invalid={!!nameError}
         aria-describedby={nameError ? "name-error" : undefined}
       />
       {#if nameError}
-        <p id="name-error" class="mt-1 text-sm text-red-600" role="alert">
+        <p id="name-error" class="text-error mt-1 text-sm" role="alert">
           {nameError}
         </p>
       {:else}
-        <p class="mt-1 text-sm text-gray-500">A descriptive name for your filter</p>
+        <p class="text-text-secondary mt-1 text-sm">A descriptive name for your filter</p>
       {/if}
     </div>
 
     <div class="mb-4">
-      <label for="value" class="mb-1 block text-sm font-medium text-gray-700"> Filter Value </label>
+      <label for="value" class="text-text-primary mb-1 block text-sm font-medium">
+        Filter Value
+      </label>
       <input
         type="text"
         id="value"
         bind:value
-        class="focus:ring-neon-blue w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 {valueError
-          ? 'border-red-500'
-          : 'border-gray-300'}"
+        class={cn(
+          "focus:ring-primary w-full rounded border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+          valueError ? "border-error" : "border-border"
+        )}
         placeholder="e.g., -author:app/dependabot"
         aria-invalid={!!valueError}
         aria-describedby={valueError ? "value-error" : undefined}
       />
       {#if valueError}
-        <p id="value-error" class="mt-1 text-sm text-red-600" role="alert">
+        <p id="value-error" class="text-error mt-1 text-sm" role="alert">
           {valueError}
         </p>
       {:else}
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="text-text-secondary mt-1 text-sm">
           GitHub search syntax (e.g., <code>-author:app/dependabot</code>,
           <code>is:open</code>)
         </p>
@@ -143,9 +157,11 @@
           type="checkbox"
           id="enabled"
           bind:checked={enabled}
-          class="text-neon-blue focus:ring-neon-blue h-4 w-4 rounded"
+          class="text-primary focus:ring-primary h-4 w-4 rounded transition-colors focus:ring-2 focus:ring-offset-2"
         />
-        <label for="enabled" class="ml-2 block text-sm text-gray-700"> Enable this filter </label>
+        <label for="enabled" class="text-text-primary ml-2 block text-sm">
+          Enable this filter
+        </label>
       </div>
     </div>
 
@@ -153,14 +169,14 @@
       <button
         type="button"
         onclick={onCancel}
-        class="rounded bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
+        class="bg-bg-tertiary text-text-primary hover:bg-border focus:ring-text-secondary rounded px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
         disabled={isSaving}
       >
         Cancel
       </button>
       <button
         type="submit"
-        class="bg-neon-blue rounded px-4 py-2 text-black hover:bg-blue-600"
+        class="bg-primary hover:bg-primary-hover focus:ring-primary rounded px-4 py-2 text-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
         disabled={isSaving}
       >
         {isSaving ? "Saving..." : filter ? "Update Filter" : "Add Filter"}

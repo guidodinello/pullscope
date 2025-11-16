@@ -35,10 +35,10 @@
   }
 
   const typeStyles: Record<typeof type, string> = {
-    info: "bg-blue-600 border-blue-700",
-    success: "bg-green-600 border-green-700",
-    error: "bg-red-600 border-red-700",
-    warning: "bg-yellow-600 border-yellow-700",
+    info: "bg-info border-info-dark",
+    success: "bg-success border-success-dark",
+    error: "bg-error border-error-dark",
+    warning: "bg-warning border-warning-dark",
   };
 </script>
 
@@ -53,7 +53,7 @@
     <div class="flex items-center justify-between gap-3">
       <p class="flex-1 text-sm">{message}</p>
       <button
-        class="rounded text-white hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-white"
+        class="rounded text-white transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white"
         onclick={handleClose}
         aria-label="Close notification"
       >

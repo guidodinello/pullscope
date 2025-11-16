@@ -2,8 +2,11 @@
   import { onMount, onDestroy } from "svelte";
   import FilterEditor from "@/lib/components/FilterEditor.svelte";
   import ErrorDisplay from "@/lib/components/ErrorDisplay.svelte";
+  import Icon from "@/lib/components/Icon.svelte";
   import type { PRFilter } from "@/lib/types/filter";
   import { filterStore } from "@/lib/stores/filters";
+  import { broadcastFilterToggle } from "@/lib/utils/messaging";
+  import { cn } from "@/lib/utils/cn";
   import { logger } from "@/lib/utils/logger";
 
   // Component state
@@ -56,28 +59,6 @@
     broadcastFilterToggle(toggledFilter);
   }
 
-  /**
-   * Broadcast filter toggle to all GitHub PR tabs
-   */
-  async function broadcastFilterToggle(filter: PRFilter) {
-    try {
-      const tabs = await browser.tabs.query({
-        url: "*://github.com/*/*/pulls*",
-      });
-
-      for (const tab of tabs) {
-        if (tab.id) {
-          browser.tabs.sendMessage(tab.id, {
-            action: "toggleFilter",
-            filter: filter,
-          });
-        }
-      }
-    } catch (err) {
-      logger.error("Failed to broadcast filter toggle:", err);
-    }
-  }
-
   async function handleDeleteFilter(id: string) {
     if (!confirm("Are you sure you want to delete this filter?")) return;
 
@@ -123,12 +104,15 @@
 
   <ErrorDisplay message={error} onRetry={handleRetry} />
 
-  <div class="mb-6 rounded-lg bg-white p-6 shadow">
-    <p class="text-gray-700">
+  <div class="bg-bg-primary mb-6 rounded-lg p-6 shadow">
+    <p class="text-text-primary">
       Configure filters to be automatically applied when you visit GitHub Pull Request pages.
     </p>
-    <p class="mt-2 text-gray-700">
-      These filters use GitHub's search syntax. For example, add <code>-author:app/dependabot</code>
+    <p class="text-text-secondary mt-2">
+      These filters use GitHub's search syntax. For example, add
+      <code class="bg-bg-tertiary text-text-primary rounded px-1 py-0.5"
+        >-author:app/dependabot</code
+      >
       to hide Dependabot PRs.
     </p>
   </div>
@@ -136,16 +120,17 @@
   {#if isLoading}
     <div class="my-8 flex justify-center">
       <div
-        class="border-neon-blue h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
+        class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
       ></div>
     </div>
   {:else}
     {#if !editingFilter && !showAddForm}
       <div class="mb-6">
         <button
-          class="bg-neon-blue rounded px-4 py-2 text-black hover:bg-blue-600"
+          class="bg-primary hover:bg-primary-hover focus:ring-primary flex items-center gap-2 rounded px-4 py-2 text-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
           onclick={handleAddNew}
         >
+          <Icon name="plus" class="size-5" />
           Add New Filter
         </button>
       </div>
@@ -168,55 +153,62 @@
     {/if}
 
     {#if filters.length === 0 && !showAddForm}
-      <div class="rounded-lg bg-gray-50 p-8 text-center">
-        <p class="text-gray-500">You haven't added any filters yet.</p>
-        <button
-          class="bg-neon-blue mt-4 rounded px-4 py-2 text-black hover:bg-blue-600"
-          onclick={handleAddNew}
-        >
-          Add Your First Filter
-        </button>
+      <div class="bg-bg-tertiary rounded-lg p-8 text-center">
+        <p class="text-text-secondary">You haven't added any filters yet.</p>
       </div>
     {:else}
       <h2 class="mb-4 text-xl font-semibold">Your Filters</h2>
       <div class="space-y-4">
         {#each filters as filter (filter.id)}
-          <div class="flex items-center justify-between rounded-lg bg-white p-4 shadow">
+          <div class="bg-bg-primary flex items-center justify-between rounded-lg p-4 shadow">
             <div class="flex-1">
               <div class="flex items-center">
                 <span class="font-medium">{filter.name}</span>
                 <span
-                  class={`ml-2 rounded px-2 py-0.5 text-xs ${filter.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
+                  class={cn(
+                    "ml-2 rounded px-2 py-0.5 text-xs font-medium",
+                    filter.enabled
+                      ? "bg-success-light text-success-dark"
+                      : "bg-bg-tertiary text-text-secondary"
+                  )}
                 >
                   {filter.enabled ? "Enabled" : "Disabled"}
                 </span>
               </div>
-              <div class="mt-1 text-sm text-gray-500">
-                <code class="rounded bg-gray-100 px-1 py-0.5">{filter.value}</code>
+              <div class="text-text-secondary mt-1 text-sm">
+                <code class="bg-bg-tertiary rounded px-1 py-0.5">{filter.value}</code>
               </div>
             </div>
 
-            <div class="flex space-x-2">
+            <div class="flex gap-1">
               <button
-                class="p-2 text-gray-500 hover:text-gray-700"
-                title={filter.enabled ? "Disable" : "Enable"}
+                class={cn(
+                  "rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+                  filter.enabled
+                    ? "text-success hover:bg-success-light focus:ring-success"
+                    : "text-text-tertiary hover:bg-bg-tertiary focus:ring-text-secondary"
+                )}
+                title={filter.enabled ? "Disable filter" : "Enable filter"}
                 onclick={() => handleToggleFilter(filter.id)}
+                aria-label={filter.enabled ? `Disable ${filter.name}` : `Enable ${filter.name}`}
               >
-                {filter.enabled ? "🔴" : "🟢"}
+                <Icon name={filter.enabled ? "toggle-on" : "toggle-off"} class="size-5" />
               </button>
               <button
-                class="p-2 text-gray-500 hover:text-gray-700"
-                title="Edit"
+                class="text-text-secondary hover:bg-bg-tertiary hover:text-text-primary focus:ring-text-secondary rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                title="Edit filter"
                 onclick={() => handleEditFilter(filter)}
+                aria-label={`Edit ${filter.name}`}
               >
-                ✏️
+                <Icon name="edit" class="size-5" />
               </button>
               <button
-                class="p-2 text-gray-500 hover:text-gray-700"
-                title="Delete"
+                class="text-error hover:bg-error-light focus:ring-error rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                title="Delete filter"
                 onclick={() => handleDeleteFilter(filter.id)}
+                aria-label={`Delete ${filter.name}`}
               >
-                🗑️
+                <Icon name="delete" class="size-5" />
               </button>
             </div>
           </div>
@@ -225,7 +217,7 @@
     {/if}
   {/if}
 
-  <footer class="mt-8 text-center text-sm text-gray-500">
+  <footer class="text-text-tertiary mt-8 text-center text-sm">
     <p>Pullscope Extension</p>
     <p class="mt-1">by guidodinello</p>
   </footer>

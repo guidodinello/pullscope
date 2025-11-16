@@ -11,7 +11,7 @@
 
 {#if message}
   <div
-    class="mb-4 border-l-4 border-red-500 bg-red-100 p-4 text-red-700"
+    class="border-error bg-error-light text-error-dark mb-4 border-l-4 p-4"
     role="alert"
     aria-live="assertive"
   >
@@ -23,7 +23,7 @@
       <div class="ml-4 flex gap-2">
         {#if onRetry}
           <button
-            class="rounded text-sm underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="focus:ring-error rounded text-sm underline transition-opacity hover:no-underline hover:opacity-80 focus:outline-none focus:ring-2"
             onclick={onRetry}
             aria-label="Retry action"
           >
@@ -32,7 +32,7 @@
         {/if}
         {#if onDismiss}
           <button
-            class="rounded text-sm underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="focus:ring-error rounded text-sm underline transition-opacity hover:no-underline hover:opacity-80 focus:outline-none focus:ring-2"
             onclick={onDismiss}
             aria-label="Dismiss error"
           >
