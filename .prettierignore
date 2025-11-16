@@ -1,0 +1,26 @@
+# Build outputs
+.output
+dist
+.wxt
+
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Git
+.git
+
+# IDE
+.vscode
+.idea
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
