@@ -1,7 +1,13 @@
-import '../../app.css';
-import Popup from './Popup.svelte';
+import "../../app.css";
+import Popup from "./Popup.svelte";
 import { mount } from "svelte";
 
+const appElement = document.getElementById("app");
+
+if (!appElement) {
+  throw new Error("Failed to find app element. Cannot mount popup.");
+}
+
 mount(Popup, {
-  target: document.getElementById('app')!,
-})
+  target: appElement,
+});
