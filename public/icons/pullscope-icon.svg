@@ -1,0 +1,32 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="filterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0E7FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="128" height="128" rx="24" fill="url(#bgGradient)"/>
+  
+  <!-- Filter/funnel icon -->
+  <path d="M 36 32 L 92 32 L 72 56 L 72 86 L 56 96 L 56 56 Z" 
+        fill="url(#filterGradient)" 
+        stroke="#FFFFFF" 
+        stroke-width="2"
+        stroke-linejoin="round"/>
+  
+  <!-- Git branch circles representing PRs -->
+  <circle cx="40" cy="42" r="3" fill="#34D399"/>
+  <circle cx="64" cy="42" r="3" fill="#34D399"/>
+  <circle cx="88" cy="42" r="3" fill="#34D399"/>
+  
+  <!-- Filtered indicator dots -->
+  <circle cx="64" cy="70" r="2.5" fill="#60A5FA"/>
+  <circle cx="64" cy="82" r="2.5" fill="#60A5FA"/>
+</svg>
