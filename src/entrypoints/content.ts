@@ -1,16 +1,21 @@
-import '../app.css';
-import Content from "@/entrypoints/content/Content.svelte";
+import "../app.css";
 import { mount } from "svelte";
+import GithubPrFilter from "./content/GithubPRFilter.svelte";
+import { logger } from "@/lib/utils/logger";
 
 export default defineContentScript({
-  allFrames: true,
-  matches: ['*://*/*'],
+  matches: ["https://github.com/*/*/pulls*"],
   main() {
-    // const appVersion = browser?.runtime?.getManifest()?.version || "0.0.0-dev"
-    console.log('Hello content.');
+    logger.info("GitHub PR Filters Content Script activated");
 
-    mount(Content, {
-      target: document.body
-    })
-  }
+    // Create a container for our component
+    const container = document.createElement("div");
+    container.id = "github-pr-filters-container";
+    document.body.appendChild(container);
+
+    // Mount the Svelte component
+    mount(GithubPrFilter, {
+      target: container,
+    });
+  },
 });
