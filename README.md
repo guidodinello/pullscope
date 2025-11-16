@@ -13,10 +13,15 @@ Pullscope is a browser extension that streamlines your GitHub PR workflow by aut
 ### Key Features
 
 ✨ **Automatic Filter Application** - Filters apply instantly when you visit any GitHub PR page
+
 🔄 **Real-Time Sync** - Toggle filters on/off and see results update immediately across all open tabs
+
 ✅ **Smart Validation** - Validates GitHub search syntax before saving filters
+
 🎨 **Clean UI** - Simple popup and options page for managing filters
+
 🚀 **Cross-Browser** - Works on Chrome, Firefox, and other Chromium-based browsers
+
 ⚡ **Fast & Lightweight** - Built with modern web technologies for optimal performance
 
 ## 📦 Installation
@@ -241,10 +246,6 @@ pnpm clean
 - **Accessibility**: ARIA labels, keyboard navigation, focus management
 
 See [ARCHITECTURAL_IMPROVEMENTS.md](ARCHITECTURAL_IMPROVEMENTS.md) for detailed architecture documentation.
-
-## 🐛 Bug Fixes
-
-All known bugs have been fixed! See [BUGFIXES.md](BUGFIXES.md) for the complete list of fixes.
 
 ## 🤝 Contributing
 
