@@ -5,12 +5,15 @@
   import { cn } from "@/lib/utils/cn";
   import ErrorDisplay from "./ErrorDisplay.svelte";
 
-  // Props
-  let { filter, onSave, onCancel } = $props<{
+  let {
+    filter,
+    onSave,
+    onCancel,
+  }: {
     filter?: PRFilter;
     onSave: () => void;
     onCancel: () => void;
-  }>();
+  } = $props();
 
   // Form state
   let name = $state(filter?.name || "");
@@ -21,20 +24,17 @@
   let nameError = $state("");
   let valueError = $state("");
 
-  function validateForm(): boolean {
-    // Reset errors
+  function validateForm() {
     nameError = "";
     valueError = "";
     error = "";
 
-    // Validate name
     const nameValidation = validateFilterName(name);
     if (!nameValidation.isValid) {
       nameError = nameValidation.error || "";
       return false;
     }
 
-    // Validate value
     const valueValidation = validateFilter(value);
     if (!valueValidation.isValid) {
       valueError = valueValidation.error || "";
@@ -47,7 +47,6 @@
   async function handleSubmit(event: Event) {
     event.preventDefault();
 
-    // Validate form
     if (!validateForm()) {
       return;
     }
@@ -59,7 +58,6 @@
       let success = false;
 
       if (filter) {
-        // Update existing filter
         success = await filterStore.update({
           ...filter,
           name: name.trim(),
@@ -67,7 +65,6 @@
           enabled,
         });
       } else {
-        // Add new filter
         const newFilter = await filterStore.add({
           name: name.trim(),
           value: value.trim(),
@@ -77,7 +74,6 @@
       }
 
       if (success) {
-        // Call the onSave callback to notify parent
         onSave();
       } else {
         error = "Failed to save filter. Please try again.";
@@ -88,6 +84,9 @@
       isSaving = false;
     }
   }
+
+  const inputClasses =
+    "focus:ring-primary w-full rounded border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
 </script>
 
 <div class="bg-bg-primary rounded-lg p-6 shadow">
@@ -106,10 +105,7 @@
         type="text"
         id="name"
         bind:value={name}
-        class={cn(
-          "focus:ring-primary w-full rounded border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
-          nameError ? "border-error" : "border-border"
-        )}
+        class={cn(inputClasses, nameError ? "border-error" : "border-border")}
         placeholder="e.g., Hide Dependabot PRs"
         aria-invalid={!!nameError}
         aria-describedby={nameError ? "name-error" : undefined}
@@ -131,10 +127,7 @@
         type="text"
         id="value"
         bind:value
-        class={cn(
-          "focus:ring-primary w-full rounded border px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
-          valueError ? "border-error" : "border-border"
-        )}
+        class={cn(inputClasses, valueError ? "border-error" : "border-border")}
         placeholder="e.g., -author:app/dependabot"
         aria-invalid={!!valueError}
         aria-describedby={valueError ? "value-error" : undefined}
@@ -157,7 +150,7 @@
           type="checkbox"
           id="enabled"
           bind:checked={enabled}
-          class="text-primary focus:ring-primary h-4 w-4 rounded transition-colors focus:ring-2 focus:ring-offset-2"
+          class="text-primary focus:ring-primary size-4 rounded transition-colors focus:ring-2 focus:ring-offset-2"
         />
         <label for="enabled" class="text-text-primary ml-2 block text-sm">
           Enable this filter
