@@ -1,5 +1,5 @@
-import { logger } from "./utils/logger";
-import { GITHUB_PATTERNS } from "./constants";
+import { logger } from "@/lib/utils/logger";
+import { GITHUB_PATTERNS } from "@/lib/constants";
 
 export const SELECTORS = {
   GITHUB_SEARCH: "#js-issues-search",

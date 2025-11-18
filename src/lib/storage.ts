@@ -1,6 +1,6 @@
-import type { PRFilter, NewPRFilter } from "./types/filter";
-import { logger } from "./utils/logger";
-import { STORAGE_KEYS } from "./constants";
+import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
+import { logger } from "@/lib/utils/logger";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 export async function saveFilters(filters: PRFilter[]): Promise<void> {
   await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: filters });

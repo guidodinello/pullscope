@@ -1,5 +1,5 @@
 import "../../app.css";
-import Popup from "./Popup.svelte";
+import Popup from "@/entrypoints/popup/Popup.svelte";
 import { mount } from "svelte";
 
 const appElement = document.getElementById("app");

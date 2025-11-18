@@ -3,7 +3,7 @@
   import { filterStore } from "@/lib/stores/filters";
   import { validateFilter, validateFilterName } from "@/lib/utils/validation";
   import { cn } from "@/lib/utils/cn";
-  import ErrorDisplay from "./ErrorDisplay.svelte";
+  import ErrorDisplay from "@/lib/components/ErrorDisplay.svelte";
 
   let {
     filter,

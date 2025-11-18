@@ -1,6 +1,6 @@
 import "../app.css";
 import { mount } from "svelte";
-import GithubPrFilter from "./content/GithubPRFilter.svelte";
+import GithubPrFilter from "@/entrypoints/content/GithubPRFilter.svelte";
 import { logger } from "@/lib/utils/logger";
 
 export default defineContentScript({

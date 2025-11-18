@@ -1,7 +1,7 @@
 import { writable, derived, get } from "svelte/store";
-import type { PRFilter, NewPRFilter } from "../types/filter";
-import { logger } from "../utils/logger";
-import { STORAGE_KEYS } from "../constants";
+import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
+import { logger } from "@/lib/utils/logger";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 interface FilterStoreState {
   filters: PRFilter[];

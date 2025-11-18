@@ -1,4 +1,4 @@
-import { VALIDATION } from "../constants";
+import { VALIDATION } from "@/lib/constants";
 
 export interface ValidationResult {
   readonly isValid: boolean;

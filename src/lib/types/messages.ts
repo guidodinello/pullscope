@@ -1,5 +1,5 @@
-import type { PRFilter } from "./filter";
-import { MESSAGE_ACTIONS } from "../constants";
+import type { PRFilter } from "@/lib/types/filter";
+import { MESSAGE_ACTIONS } from "@/lib/constants";
 
 export type ApplyFiltersMessage = {
   action: typeof MESSAGE_ACTIONS.APPLY_FILTERS;

@@ -1,7 +1,7 @@
-import type { PRFilter } from "../types/filter";
-import type { ToggleFilterMessage } from "../types/messages";
-import { MESSAGE_ACTIONS, GITHUB_PATTERNS } from "../constants";
-import { logger } from "./logger";
+import type { PRFilter } from "@/lib/types/filter";
+import type { ToggleFilterMessage } from "@/lib/types/messages";
+import { MESSAGE_ACTIONS, GITHUB_PATTERNS } from "@/lib/constants";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Broadcast filter toggle to all GitHub PR tabs
