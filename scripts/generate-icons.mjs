@@ -17,22 +17,22 @@ const svg = readFileSync(svgPath, "utf-8");
 console.log("Generating PNG icons from SVG...\n");
 
 for (const size of sizes) {
-  const outputPath = join(outputDir, `icon-${size}.png`);
+    const outputPath = join(outputDir, `icon-${size}.png`);
 
-  // Render SVG to PNG with resvg
-  const resvg = new Resvg(svg, {
-    fitTo: {
-      mode: "width",
-      value: size,
-    },
-  });
+    // Render SVG to PNG with resvg
+    const resvg = new Resvg(svg, {
+        fitTo: {
+            mode: "width",
+            value: size,
+        },
+    });
 
-  const pngData = resvg.render();
-  const pngBuffer = pngData.asPng();
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
 
-  writeFileSync(outputPath, pngBuffer);
+    writeFileSync(outputPath, pngBuffer);
 
-  console.log(`✓ Generated ${size}x${size} icon: icon-${size}.png`);
+    console.log(`✓ Generated ${size}x${size} icon: icon-${size}.png`);
 }
 
 console.log("\n✅ All icons generated successfully!");

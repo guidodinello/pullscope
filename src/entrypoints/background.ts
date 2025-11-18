@@ -1,107 +1,107 @@
 import { getFilters, saveFilters } from "@/lib/storage";
 import type { PRFilter } from "@/lib/types/filter";
 import type {
-  ExtensionMessage,
-  MessageResponse,
-  ApplyFiltersNowMessage,
+    ExtensionMessage,
+    MessageResponse,
+    ApplyFiltersNowMessage,
 } from "@/lib/types/messages";
 import { MESSAGE_ACTIONS, GITHUB_PATTERNS, CONTEXT_MENU_IDS } from "@/lib/constants";
 import { logger } from "@/lib/utils/logger";
 
 const DEFAULT_FILTERS = [
-  {
-    id: crypto.randomUUID(),
-    name: "Hide Dependabot PRs",
-    value: "-author:app/dependabot",
-    enabled: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "Only Open PRs",
-    value: "is:open",
-    enabled: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "Is a PR",
-    value: "is:pr",
-    enabled: true,
-  },
+    {
+        id: crypto.randomUUID(),
+        name: "Hide Dependabot PRs",
+        value: "-author:app/dependabot",
+        enabled: true,
+    },
+    {
+        id: crypto.randomUUID(),
+        name: "Only Open PRs",
+        value: "is:open",
+        enabled: true,
+    },
+    {
+        id: crypto.randomUUID(),
+        name: "Is a PR",
+        value: "is:pr",
+        enabled: true,
+    },
 ] satisfies PRFilter[];
 
 export default defineBackground(() => {
-  logger.info("GitHub PR Filters background script initialized");
+    logger.info("GitHub PR Filters background script initialized");
 
-  // Set up default filters if none exist
-  browser.runtime.onInstalled.addListener(async (details) => {
-    if (details.reason === "install") {
-      // Check if we already have filters
-      const existingFilters = await getFilters();
+    // Set up default filters if none exist
+    browser.runtime.onInstalled.addListener(async (details) => {
+        if (details.reason === "install") {
+            // Check if we already have filters
+            const existingFilters = await getFilters();
 
-      if (existingFilters.length === 0) {
-        await saveFilters(DEFAULT_FILTERS);
-        logger.info("Default filters installed");
-      }
-
-      browser.tabs.create({
-        url: browser.runtime.getURL("/options.html"),
-      });
-    }
-  });
-
-  // Listen for commands from browser action
-  browser.runtime.onMessage.addListener(
-    async (message: ExtensionMessage, _sender): Promise<MessageResponse | undefined> => {
-      if (message.action === MESSAGE_ACTIONS.APPLY_FILTERS) {
-        const tabs = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        const currentTab = tabs[0];
-
-        if (currentTab?.id) {
-          // Check if the tab URL is a GitHub PR page
-          if (
-            currentTab.url?.includes(GITHUB_PATTERNS.PR_PAGE_PARTIAL) &&
-            currentTab.url?.includes(GITHUB_PATTERNS.PR_PATH_PARTIAL)
-          ) {
-            // Send message to content script to apply filters
-            try {
-              await browser.tabs.sendMessage(currentTab.id, {
-                action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
-              } satisfies ApplyFiltersNowMessage);
-              return { success: true };
-            } catch (err) {
-              logger.error("Failed to send message to tab", err);
-              return {
-                success: false,
-                message: "Failed to communicate with page",
-              };
+            if (existingFilters.length === 0) {
+                await saveFilters(DEFAULT_FILTERS);
+                logger.info("Default filters installed");
             }
-          }
+
+            browser.tabs.create({
+                url: browser.runtime.getURL("/options.html"),
+            });
         }
+    });
 
-        return { success: false, message: "Not a GitHub PR page" };
-      }
+    // Listen for commands from browser action
+    browser.runtime.onMessage.addListener(
+        async (message: ExtensionMessage, _sender): Promise<MessageResponse | undefined> => {
+            if (message.action === MESSAGE_ACTIONS.APPLY_FILTERS) {
+                const tabs = await browser.tabs.query({
+                    active: true,
+                    currentWindow: true,
+                });
+                const currentTab = tabs[0];
 
-      return undefined;
-    }
-  );
+                if (currentTab?.id) {
+                    // Check if the tab URL is a GitHub PR page
+                    if (
+                        currentTab.url?.includes(GITHUB_PATTERNS.PR_PAGE_PARTIAL) &&
+                        currentTab.url?.includes(GITHUB_PATTERNS.PR_PATH_PARTIAL)
+                    ) {
+                        // Send message to content script to apply filters
+                        try {
+                            await browser.tabs.sendMessage(currentTab.id, {
+                                action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
+                            } satisfies ApplyFiltersNowMessage);
+                            return { success: true };
+                        } catch (err) {
+                            logger.error("Failed to send message to tab", err);
+                            return {
+                                success: false,
+                                message: "Failed to communicate with page",
+                            };
+                        }
+                    }
+                }
 
-  // Add context menu for quickly applying filters
-  browser.contextMenus?.create({
-    id: CONTEXT_MENU_IDS.APPLY_PR_FILTERS,
-    title: "Apply PR Filters",
-    contexts: ["page"],
-    documentUrlPatterns: [GITHUB_PATTERNS.PR_PAGE_QUERY],
-  });
+                return { success: false, message: "Not a GitHub PR page" };
+            }
 
-  // Handle context menu clicks
-  browser.contextMenus?.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === CONTEXT_MENU_IDS.APPLY_PR_FILTERS && tab?.id) {
-      browser.tabs.sendMessage(tab.id, {
-        action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
-      } satisfies ApplyFiltersNowMessage);
-    }
-  });
+            return undefined;
+        }
+    );
+
+    // Add context menu for quickly applying filters
+    browser.contextMenus?.create({
+        id: CONTEXT_MENU_IDS.APPLY_PR_FILTERS,
+        title: "Apply PR Filters",
+        contexts: ["page"],
+        documentUrlPatterns: [GITHUB_PATTERNS.PR_PAGE_QUERY],
+    });
+
+    // Handle context menu clicks
+    browser.contextMenus?.onClicked.addListener((info, tab) => {
+        if (info.menuItemId === CONTEXT_MENU_IDS.APPLY_PR_FILTERS && tab?.id) {
+            browser.tabs.sendMessage(tab.id, {
+                action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
+            } satisfies ApplyFiltersNowMessage);
+        }
+    });
 });

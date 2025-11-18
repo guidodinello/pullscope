@@ -8,22 +8,22 @@ import { logger } from "@/lib/utils/logger";
  * This utility is shared between Popup and Options components
  */
 export async function broadcastFilterToggle(filter: PRFilter): Promise<void> {
-  try {
-    const tabs = await browser.tabs.query({
-      url: GITHUB_PATTERNS.PR_PAGE_QUERY,
-    });
+    try {
+        const tabs = await browser.tabs.query({
+            url: GITHUB_PATTERNS.PR_PAGE_QUERY,
+        });
 
-    const message = {
-      action: MESSAGE_ACTIONS.TOGGLE_FILTER,
-      filter,
-    } satisfies ToggleFilterMessage;
+        const message = {
+            action: MESSAGE_ACTIONS.TOGGLE_FILTER,
+            filter,
+        } satisfies ToggleFilterMessage;
 
-    for (const tab of tabs) {
-      if (tab.id) {
-        browser.tabs.sendMessage(tab.id, message);
-      }
+        for (const tab of tabs) {
+            if (tab.id) {
+                browser.tabs.sendMessage(tab.id, message);
+            }
+        }
+    } catch (err) {
+        logger.error("Failed to broadcast filter toggle:", err);
     }
-  } catch (err) {
-    logger.error("Failed to broadcast filter toggle:", err);
-  }
 }

@@ -4,64 +4,64 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-  /* Primary */
-  --color-primary: #0969da;
-  --color-primary-hover: #0550ae;
-  --color-primary-dark: #033d8b;
+    /* Primary */
+    --color-primary: #0969da;
+    --color-primary-hover: #0550ae;
+    --color-primary-dark: #033d8b;
 
-  /* Accent */
-  --color-accent: #8250df;
-  --color-accent-hover: #6639ba;
+    /* Accent */
+    --color-accent: #8250df;
+    --color-accent-hover: #6639ba;
 
-  /* Semantic colors */
-  --color-success: #1a7f37;
-  --color-success-light: #dafbe1;
-  --color-success-dark: #044f1e;
+    /* Semantic colors */
+    --color-success: #1a7f37;
+    --color-success-light: #dafbe1;
+    --color-success-dark: #044f1e;
 
-  --color-error: #d1242f;
-  --color-error-light: #ffebe9;
-  --color-error-dark: #8e1519;
+    --color-error: #d1242f;
+    --color-error-light: #ffebe9;
+    --color-error-dark: #8e1519;
 
-  --color-warning: #bf8700;
-  --color-warning-light: #fff8c5;
-  --color-warning-dark: #7d4e00;
+    --color-warning: #bf8700;
+    --color-warning-light: #fff8c5;
+    --color-warning-dark: #7d4e00;
 
-  --color-info: #0969da;
-  --color-info-light: #ddf4ff;
-  --color-info-dark: #0550ae;
+    --color-info: #0969da;
+    --color-info-light: #ddf4ff;
+    --color-info-dark: #0550ae;
 
-  /* Neutrals */
-  --color-bg-primary: light-dark(#ffffff, #0d1117);
-  --color-bg-secondary: light-dark(#f6f8fa, #161b22);
-  --color-bg-tertiary: light-dark(#eaeef2, #21262d);
-  --color-text-primary: light-dark(#1f2328, #c9d1d9);
-  --color-text-secondary: light-dark(#656d76, #8b949e);
-  --color-text-tertiary: light-dark(#8c959f, #6e7681);
-  --color-border: light-dark(#d0d7de, #30363d);
-  --color-border-light: light-dark(#eaeef2, #21262d);
+    /* Neutrals */
+    --color-bg-primary: light-dark(#ffffff, #0d1117);
+    --color-bg-secondary: light-dark(#f6f8fa, #161b22);
+    --color-bg-tertiary: light-dark(#eaeef2, #21262d);
+    --color-text-primary: light-dark(#1f2328, #c9d1d9);
+    --color-text-secondary: light-dark(#656d76, #8b949e);
+    --color-text-tertiary: light-dark(#8c959f, #6e7681);
+    --color-border: light-dark(#d0d7de, #30363d);
+    --color-border-light: light-dark(#eaeef2, #21262d);
 }
 
 @layer base {
-  body {
-    @apply bg-bg-secondary text-text-primary;
-  }
+    body {
+        @apply bg-bg-secondary text-text-primary;
+    }
 
-  /* Ensure color scheme is set for light-dark() to work */
-  :root {
-    color-scheme: light dark;
-  }
+    /* Ensure color scheme is set for light-dark() to work */
+    :root {
+        color-scheme: light dark;
+    }
 }
 
 @layer components {
-  .filter-badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-  }
+    .filter-badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    }
 
-  .filter-badge-enabled {
-    @apply bg-success-light text-success-dark;
-  }
+    .filter-badge-enabled {
+        @apply bg-success-light text-success-dark;
+    }
 
-  .filter-badge-disabled {
-    @apply bg-bg-tertiary text-text-secondary;
-  }
+    .filter-badge-disabled {
+        @apply bg-bg-tertiary text-text-secondary;
+    }
 }

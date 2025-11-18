@@ -5,9 +5,9 @@ import { mount } from "svelte";
 const appElement = document.getElementById("app");
 
 if (!appElement) {
-  throw new Error("Failed to find app element. Cannot mount popup.");
+    throw new Error("Failed to find app element. Cannot mount popup.");
 }
 
 mount(Popup, {
-  target: appElement,
+    target: appElement,
 });

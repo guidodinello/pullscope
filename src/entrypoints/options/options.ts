@@ -5,9 +5,9 @@ import { mount } from "svelte";
 const appElement = document.getElementById("app");
 
 if (!appElement) {
-  throw new Error("Failed to find app element. Cannot mount options page.");
+    throw new Error("Failed to find app element. Cannot mount options page.");
 }
 
 mount(Options, {
-  target: appElement,
+    target: appElement,
 });
