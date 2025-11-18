@@ -46,6 +46,13 @@ export default [
                 // WXT globals
                 defineBackground: "readonly",
                 defineContentScript: "readonly",
+                // Svelte 5 runes
+                $state: "readonly",
+                $derived: "readonly",
+                $effect: "readonly",
+                $props: "readonly",
+                $bindable: "readonly",
+                $inspect: "readonly",
             },
         },
         rules: {
@@ -93,6 +100,13 @@ export default [
                 // WXT globals
                 defineBackground: "readonly",
                 defineContentScript: "readonly",
+                // Svelte 5 runes
+                $state: "readonly",
+                $derived: "readonly",
+                $effect: "readonly",
+                $props: "readonly",
+                $bindable: "readonly",
+                $inspect: "readonly",
             },
         },
         rules: {
