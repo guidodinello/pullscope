@@ -1,5 +1,3 @@
-import { logger } from "./logger";
-
 /**
  * Wait for a DOM element to appear in the document
  * @param selector - CSS selector for the element
@@ -11,34 +9,25 @@ export function waitForElement<T extends Element = Element>(
   timeout = 5000
 ): Promise<T> {
   return new Promise((resolve, reject) => {
-    // Check if element already exists
     const existingElement = document.querySelector<T>(selector);
     if (existingElement) {
-      logger.debug(`Element ${selector} found immediately`);
       return resolve(existingElement);
     }
 
-    logger.debug(`Waiting for element ${selector}...`);
-
-    // Set up timeout
     const timeoutId = setTimeout(() => {
       observer.disconnect();
-      logger.warn(`Timeout waiting for element ${selector}`);
       reject(new Error(`Timeout waiting for element: ${selector}`));
     }, timeout);
 
-    // Set up mutation observer
     const observer = new MutationObserver(() => {
       const element = document.querySelector<T>(selector);
       if (element) {
-        logger.debug(`Element ${selector} found after waiting`);
         clearTimeout(timeoutId);
         observer.disconnect();
         resolve(element);
       }
     });
 
-    // Start observing
     observer.observe(document.body, {
       childList: true,
       subtree: true,
@@ -46,15 +35,8 @@ export function waitForElement<T extends Element = Element>(
   });
 }
 
-/**
- * Wait for multiple elements to appear
- * @param selectors - Array of CSS selectors
- * @param timeout - Maximum time to wait in milliseconds
- * @returns Promise that resolves when all elements are found
- */
-export async function waitForElements(selectors: string[], timeout = 5000): Promise<Element[]> {
-  return Promise.all(selectors.map((s) => waitForElement(s, timeout)));
-}
+export const waitForElements = async (selectors: string[], timeout = 5000) =>
+  Promise.all(selectors.map((s) => waitForElement(s, timeout)));
 
 /**
  * Debounce function to limit how often a function can fire
