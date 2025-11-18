@@ -1,68 +1,22 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
     import FilterEditor from "@/lib/components/FilterEditor.svelte";
     import ErrorDisplay from "@/lib/components/ErrorDisplay.svelte";
     import Icon from "@/lib/components/Icon.svelte";
     import type { PRFilter } from "@/lib/types/filter";
-    import { filterStore } from "@/lib/stores/filters";
-    import { broadcastFilterToggle } from "@/lib/utils/messaging";
+    import { useFilters } from "@/lib/compositions/filter-management.svelte";
     import { cn } from "@/lib/utils/cn";
     import { logger } from "@/lib/utils/logger";
 
-    // Component state
+    const filterManager = useFilters();
+
+    // Component-specific state
     let editingFilter = $state<PRFilter | null>(null);
     let showAddForm = $state(false);
-    let filters = $state<PRFilter[]>([]);
-    let isLoading = $state(false);
-    let error = $state("");
-    let unsubscribe: (() => void) | null = null;
-
-    // Load filters on mount
-    onMount(async () => {
-        unsubscribe = filterStore.subscribe((state) => {
-            filters = state.filters;
-            isLoading = state.isLoading;
-            error = state.error || "";
-        });
-
-        await filterStore.init();
-    });
-
-    onDestroy(() => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
-        filterStore.destroy();
-    });
-
-    async function handleToggleFilter(id: string) {
-        // Find the filter BEFORE toggling to get current state
-        const filter = filters.find((f) => f.id === id);
-        if (!filter) {
-            logger.error("Filter not found:", id);
-            return;
-        }
-
-        const success = await filterStore.toggle(id);
-        if (!success) {
-            logger.error("Failed to toggle filter:", id);
-            return;
-        }
-
-        // Create updated filter with toggled state
-        const toggledFilter = {
-            ...filter,
-            enabled: !filter.enabled,
-        } satisfies PRFilter;
-
-        // Broadcast to all GitHub PR tabs with NEW state
-        broadcastFilterToggle(toggledFilter);
-    }
 
     async function handleDeleteFilter(id: string) {
         if (!confirm("Are you sure you want to delete this filter?")) return;
 
-        const success = await filterStore.delete(id);
+        const success = await filterManager.deleteFilter(id);
         if (!success) {
             logger.error("Failed to delete filter:", id);
         }
@@ -89,11 +43,6 @@
         editingFilter = null;
         showAddForm = false;
     }
-
-    function handleRetry() {
-        filterStore.clearError();
-        filterStore.init();
-    }
 </script>
 
 <main class="mx-auto max-w-2xl p-4">
@@ -102,7 +51,7 @@
         <img src="/icons/icon-48.png" alt="Logo" class="size-10" />
     </div>
 
-    <ErrorDisplay message={error} onRetry={handleRetry} />
+    <ErrorDisplay message={filterManager.error} onRetry={() => filterManager.retry()} />
 
     <div class="bg-bg-primary mb-6 rounded-lg p-6 shadow">
         <p class="text-text-primary">
@@ -117,7 +66,7 @@
         </p>
     </div>
 
-    {#if isLoading}
+    {#if filterManager.isLoading}
         <div class="my-8 flex justify-center">
             <div
                 class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
@@ -127,7 +76,7 @@
         {#if !editingFilter && !showAddForm}
             <div class="mb-6">
                 <button
-                    class="bg-primary hover:bg-primary-hover focus:ring-primary flex items-center gap-2 rounded px-4 py-2 text-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    class="bg-primary hover:bg-primary-hover focus:ring-primary flex items-center gap-2 rounded px-4 py-2 font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
                     onclick={handleAddNew}
                 >
                     <Icon name="plus" class="size-5" />
@@ -152,14 +101,14 @@
             </div>
         {/if}
 
-        {#if filters.length === 0 && !showAddForm}
+        {#if filterManager.filters.length === 0 && !showAddForm}
             <div class="bg-bg-tertiary rounded-lg p-8 text-center">
                 <p class="text-text-secondary">You haven't added any filters yet.</p>
             </div>
         {:else}
             <h2 class="mb-4 text-xl font-semibold">Your Filters</h2>
             <div class="space-y-4">
-                {#each filters as filter (filter.id)}
+                {#each filterManager.filters as filter (filter.id)}
                     <div
                         class="bg-bg-primary flex items-center justify-between rounded-lg p-4 shadow"
                     >
@@ -168,7 +117,7 @@
                                 <span class="font-medium">{filter.name}</span>
                                 <span
                                     class={cn(
-                                        "ml-2 rounded px-2 py-0.5 text-xs font-medium",
+                                        "ml-2 rounded px-2 py-0.5 text-xs font-semibold",
                                         filter.enabled
                                             ? "filter-badge-enabled"
                                             : "filter-badge-disabled"
@@ -187,13 +136,13 @@
                         <div class="flex gap-1">
                             <button
                                 class={cn(
-                                    "rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+                                    "rounded p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
                                     filter.enabled
-                                        ? "text-success hover:bg-success-light focus:ring-success"
-                                        : "text-text-tertiary hover:bg-bg-tertiary focus:ring-text-secondary"
+                                        ? "text-success hover:bg-success-light focus:ring-success hover:scale-110"
+                                        : "text-text-tertiary hover:bg-bg-tertiary focus:ring-text-secondary opacity-60 hover:opacity-100"
                                 )}
                                 title={filter.enabled ? "Disable filter" : "Enable filter"}
-                                onclick={() => handleToggleFilter(filter.id)}
+                                onclick={() => filterManager.toggleFilter(filter.id)}
                                 aria-label={filter.enabled
                                     ? `Disable ${filter.name}`
                                     : `Enable ${filter.name}`}
