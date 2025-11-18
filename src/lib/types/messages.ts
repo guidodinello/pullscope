@@ -1,10 +1,6 @@
 import type { PRFilter } from "./filter";
 import { MESSAGE_ACTIONS } from "../constants";
 
-/**
- * Message types for extension communication
- */
-
 export type ApplyFiltersMessage = {
   action: typeof MESSAGE_ACTIONS.APPLY_FILTERS;
 };

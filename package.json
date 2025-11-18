@@ -30,6 +30,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint-staged": "lint-staged",
+    "fix": "pnpm run lint:fix && pnpm run format && pnpm run check",
     "generate-icons": "node scripts/generate-icons.mjs",
     "postinstall": "wxt prepare",
     "clean": "git clean -fXd",

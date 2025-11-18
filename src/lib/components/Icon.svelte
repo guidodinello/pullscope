@@ -1,18 +1,5 @@
 <script lang="ts">
-  /**
-   * Reusable icon component with consistent SVG icons
-   * Note: Using @html with static, hardcoded SVG paths is safe
-   * The Firefox warning is a false positive - no user input is used
-   */
-  type IconName = "toggle-on" | "toggle-off" | "edit" | "delete" | "check" | "x" | "plus";
-
-  let { name, class: className = "size-5" } = $props<{
-    name: IconName;
-    class?: string;
-  }>();
-
-  // Static SVG path data - no user input, completely safe
-  const icons: Record<IconName, string> = {
+  const icons = {
     "toggle-on": `
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     `,
@@ -34,7 +21,17 @@
     plus: `
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
     `,
-  };
+  } as const;
+
+  type IconName = keyof typeof icons;
+
+  let {
+    name,
+    class: className = "size-5",
+  }: {
+    name: IconName;
+    class?: string;
+  } = $props();
 
   const iconPath = $derived(icons[name as IconName]);
 </script>

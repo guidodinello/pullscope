@@ -1,43 +1,25 @@
 import { logger } from "./utils/logger";
 import { GITHUB_PATTERNS } from "./constants";
 
+export const SELECTORS = {
+  GITHUB_SEARCH: "#js-issues-search",
+} as const;
+
 /**
  * Common GitHub search input selectors
  * Ordered by priority (most specific to most general)
  */
 const SEARCH_INPUT_SELECTORS = [
-  "#js-issues-search", // Primary selector
-  'input[name="q"]', // Fallback selector
-  'input[aria-label*="Search"]', // Aria-based fallback
+  SELECTORS.GITHUB_SEARCH,
+  'input[name="q"]',
+  'input[aria-label*="Search"]',
 ] as const;
 
-/**
- * Check if the current URL is a GitHub pull requests page
- */
-export function isGitHubPRPage(url: string): boolean {
-  return GITHUB_PATTERNS.PR_PAGE_REGEX.test(url);
-}
+export const isGitHubPRPage = (url: string): boolean => GITHUB_PATTERNS.PR_PAGE_REGEX.test(url);
 
-/**
- * Extract repository owner and name from GitHub URL
- */
-export function extractRepoInfo(url: string): { owner: string; repo: string } | null {
-  const match = url.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/);
-  if (!match) return null;
-
-  return {
-    owner: match[1],
-    repo: match[2],
-  };
-}
-
-/**
- * Get the search input element from GitHub PR page
- * Tries multiple selectors for robustness
- */
 export function getSearchInputElement(): HTMLInputElement | null {
   for (const selector of SEARCH_INPUT_SELECTORS) {
-    const element = document.querySelector(selector) as HTMLInputElement;
+    const element = document.querySelector<HTMLInputElement>(selector);
     if (element) {
       logger.debug(`Found search input with selector: ${selector}`);
       return element;
@@ -61,14 +43,9 @@ function isFilterPresent(searchValue: string, filter: string): boolean {
   return filterTokens.every((token) => searchTokens.includes(token));
 }
 
-/**
- * Trigger GitHub's search by submitting the form
- */
 function triggerSearch(searchInput: HTMLInputElement): void {
-  // Dispatch input event
   searchInput.dispatchEvent(new Event("input", { bubbles: true }));
 
-  // Find and submit the form
   const form = searchInput.closest("form");
   if (form) {
     form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -89,9 +66,29 @@ function triggerSearch(searchInput: HTMLInputElement): void {
 }
 
 /**
- * Apply filters to GitHub PR search input
- * @param filters Array of filter strings to apply
+ * Add filters to the search input value
+ * @returns Object with updated value and count of filters added
  */
+function buildSearchValueWithFilters(
+  currentValue: string,
+  filterValues: string[]
+): { value: string; count: number } {
+  let value = currentValue.trim();
+  let count = 0;
+
+  filterValues.forEach((filter) => {
+    if (!isFilterPresent(value, filter)) {
+      if (value && !value.endsWith(" ")) {
+        value += " ";
+      }
+      value += filter;
+      count++;
+    }
+  });
+
+  return { value, count };
+}
+
 export function applyFilters(filterValues: string[]): boolean {
   const searchInput = getSearchInputElement();
   if (!searchInput) {
@@ -99,39 +96,38 @@ export function applyFilters(filterValues: string[]): boolean {
     return false;
   }
 
-  // Get current value and parse it
-  let currentValue = searchInput.value || "";
-  logger.debug("Current search value:", currentValue);
+  const result = buildSearchValueWithFilters(searchInput.value || "", filterValues);
 
-  let filtersAdded = 0;
-
-  // Add each filter if it's not already present
-  filterValues.forEach((filter) => {
-    if (!isFilterPresent(currentValue, filter)) {
-      // Add space if there's already content
-      if (currentValue && !currentValue.endsWith(" ")) {
-        currentValue += " ";
-      }
-      currentValue += filter;
-      filtersAdded++;
-      logger.debug(`Added filter: ${filter}`);
-    } else {
-      logger.debug(`Filter already present: ${filter}`);
-    }
-  });
-
-  if (filtersAdded === 0) {
-    logger.info("No new filters to apply");
+  if (result.count === 0) {
+    logger.debug("All filters already present");
     return false;
   }
 
-  // Update the input value
-  searchInput.value = currentValue;
-
-  // Trigger GitHub's search
+  searchInput.value = result.value;
   triggerSearch(searchInput);
 
-  logger.info(`Applied ${filtersAdded} filter(s)`);
+  logger.info(`Applied ${result.count} filter(s)`);
+  return true;
+}
+
+export function addFilter(filterValue: string): boolean {
+  const searchInput = getSearchInputElement();
+  if (!searchInput) {
+    logger.error("Cannot add filter: search input not found");
+    return false;
+  }
+
+  const result = buildSearchValueWithFilters(searchInput.value || "", [filterValue]);
+
+  if (result.count === 0) {
+    logger.debug(`Filter already present: ${filterValue}`);
+    return false;
+  }
+
+  searchInput.value = result.value;
+  triggerSearch(searchInput);
+
+  logger.info(`Added filter: ${filterValue}`);
   return true;
 }
 
@@ -165,42 +161,8 @@ export function removeFilter(filterValue: string): boolean {
 
   searchInput.value = newValue;
 
-  // Trigger GitHub's search
   triggerSearch(searchInput);
 
   logger.info(`Removed filter: ${filterValue}`);
-  return true;
-}
-
-/**
- * Add a single filter to the GitHub PR search input
- * @param filterValue The filter string to add
- */
-export function addFilter(filterValue: string): boolean {
-  const searchInput = getSearchInputElement();
-  if (!searchInput) {
-    logger.error("Cannot add filter: search input not found");
-    return false;
-  }
-
-  let currentValue = searchInput.value || "";
-
-  if (isFilterPresent(currentValue, filterValue)) {
-    logger.debug(`Filter already present: ${filterValue}`);
-    return false;
-  }
-
-  // Add space if there's already content
-  if (currentValue && !currentValue.endsWith(" ")) {
-    currentValue += " ";
-  }
-  currentValue += filterValue;
-
-  searchInput.value = currentValue;
-
-  // Trigger GitHub's search
-  triggerSearch(searchInput);
-
-  logger.info(`Added filter: ${filterValue}`);
   return true;
 }

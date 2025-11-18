@@ -1,12 +1,8 @@
 import { VALIDATION } from "../constants";
 
-/**
- * Validation utilities for GitHub filters
- */
-
 export interface ValidationResult {
-  isValid: boolean;
-  error?: string;
+  readonly isValid: boolean;
+  readonly error?: string;
 }
 
 /**
@@ -50,11 +46,6 @@ const GITHUB_QUALIFIERS = [
   "sort",
 ];
 
-/**
- * Validate a GitHub search filter
- * @param value - The filter value to validate
- * @returns Validation result with error message if invalid
- */
 export function validateFilter(value: string): ValidationResult {
   if (!value || !value.trim()) {
     return {
@@ -104,11 +95,6 @@ export function validateFilter(value: string): ValidationResult {
   return { isValid: true };
 }
 
-/**
- * Validate filter name
- * @param name - The filter name to validate
- * @returns Validation result
- */
 export function validateFilterName(name: string): ValidationResult {
   if (!name || !name.trim()) {
     return {
