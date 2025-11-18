@@ -4,44 +4,172 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-  /* Primary brand colors */
-  --color-primary: #05d9ff;
-  --color-primary-hover: #04b8d9;
-  --color-primary-dark: #0396b3;
+    /* Primary - GitHub blue*/
+    --color-primary: light-dark(#0969da, #58a6ff);
+    --color-primary-hover: light-dark(#0550ae, #1f6feb);
+    --color-primary-dark: light-dark(#033d8b, #0969da);
 
-  /* Accent color */
-  --color-accent: #f535aa;
-  --color-accent-hover: #dc2f99;
+    /* Accent - Purple */
+    --color-accent: light-dark(#8250df, #a371f7);
+    --color-accent-hover: light-dark(#6639ba, #8b5cf6);
 
-  /* Semantic colors */
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
-  --color-success-dark: #065f46;
-  --color-error: #ef4444;
-  --color-error-light: #fee2e2;
-  --color-error-dark: #991b1b;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
-  --color-warning-dark: #92400e;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
-  --color-info-dark: #1e40af;
+    /* Success - Green*/
+    --color-success: light-dark(#1a7f37, #3fb950);
+    --color-success-light: light-dark(#dafbe1, #1b4721);
+    --color-success-dark: light-dark(#044f1e, #56d364);
 
-  /* Neutrals */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-bg-tertiary: #f3f4f6;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
-  --color-border: #e5e7eb;
-  --color-border-light: #f3f4f6;
+    /* Error - Red*/
+    --color-error: light-dark(#d1242f, #f85149);
+    --color-error-light: light-dark(#ffebe9, #4c1f1f);
+    --color-error-dark: light-dark(#8e1519, #da3633);
+
+    /* Warning - Orange/Yellow*/
+    --color-warning: light-dark(#9a6700, #e3b341);
+    --color-warning-light: light-dark(#fff8c5, #3d2f00);
+    --color-warning-dark: light-dark(#7d4e00, #f0b72f);
+
+    /* Info - Blue matching primary theme */
+    --color-info: light-dark(#0969da, #58a6ff);
+    --color-info-light: light-dark(#ddf4ff, #0c2d6b);
+    --color-info-dark: light-dark(#0550ae, #1f6feb);
+
+    /* Neutrals - GitHub-inspired with proper contrast */
+    --color-bg-primary: light-dark(#ffffff, #0d1117);
+    --color-bg-secondary: light-dark(#f6f8fa, #161b22);
+    --color-bg-tertiary: light-dark(#eaeef2, #21262d);
+
+    /* Text colors with WCAG AAA contrast ratios */
+    --color-text-primary: light-dark(#24292f, #e6edf3);
+    --color-text-secondary: light-dark(#57606a, #8d96a0);
+    --color-text-tertiary: light-dark(#6e7781, #7d8590);
+
+    /* Borders */
+    --color-border: light-dark(#d1d9e0, #30363d);
+    --color-border-light: light-dark(#d8dee4, #21262d);
+
+    /* Button text colors for contrast */
+    --color-btn-text-primary: light-dark(#ffffff, #0d1117);
+    --color-btn-text-secondary: light-dark(#24292f, #e6edf3);
 }
 
-/* Base
-*************************************************/
 @layer base {
-  body {
-    @apply bg-bg-secondary text-text-primary;
-  }
+    body {
+        @apply bg-bg-secondary text-text-primary;
+    }
+
+    /* Ensure color scheme is set for light-dark() to work */
+    :root {
+        color-scheme: light dark;
+    }
+
+    /* Improve button text contrast */
+    button {
+        font-weight: 500;
+    }
+}
+
+@layer components {
+    .filter-badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    .filter-badge-enabled {
+        /* Light mode: dark text on light bg, Dark mode: light text on dark bg */
+        background-color: light-dark(#dafbe1, #1b4721);
+        color: light-dark(#044f1e, #56d364);
+    }
+
+    .filter-badge-disabled {
+        background-color: light-dark(#eaeef2, #21262d);
+        color: light-dark(#57606a, #8d96a0);
+    }
+
+    /* Primary button */
+    .btn-primary {
+        background-color: light-dark(#0969da, #238636);
+        color: #ffffff;
+    }
+
+    .btn-primary:hover {
+        background-color: light-dark(#0550ae, #2ea043);
+    }
+
+    .btn-primary:focus-visible {
+        outline: 2px solid light-dark(#0969da, #238636);
+        outline-offset: 2px;
+    }
+
+    /* Secondary button */
+    .btn-secondary {
+        background-color: light-dark(#f6f8fa, #21262d);
+        color: light-dark(#24292f, #e6edf3);
+        border: 1px solid light-dark(#d1d9e0, #30363d);
+    }
+
+    .btn-secondary:hover {
+        background-color: light-dark(#eaeef2, #30363d);
+    }
+
+    /* Danger button */
+    .btn-danger {
+        background-color: light-dark(#d1242f, #da3633);
+        color: #ffffff;
+    }
+
+    .btn-danger:hover {
+        background-color: light-dark(#a40e26, #b62324);
+    }
+
+    /* Success button */
+    .btn-success {
+        background-color: light-dark(#1a7f37, #238636);
+        color: #ffffff;
+    }
+
+    .btn-success:hover {
+        background-color: light-dark(#146c2e, #2ea043);
+    }
+
+    /* Input fields */
+    input[type="text"],
+    input[type="checkbox"],
+    select,
+    textarea {
+        background-color: light-dark(#ffffff, #0d1117);
+        color: light-dark(#24292f, #e6edf3);
+        border-color: light-dark(#d1d9e0, #30363d);
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: light-dark(#0969da, #58a6ff);
+        outline: 2px solid light-dark(#0969da80, #58a6ff40);
+        outline-offset: -1px;
+    }
+
+    /* Toast notifications */
+    .toast-success {
+        background-color: light-dark(#1a7f37, #238636);
+        border-color: light-dark(#044f1e, #2ea043);
+        color: #ffffff;
+    }
+
+    .toast-error {
+        background-color: light-dark(#d1242f, #da3633);
+        border-color: light-dark(#8e1519, #f85149);
+        color: #ffffff;
+    }
+
+    .toast-warning {
+        background-color: light-dark(#9a6700, #9a6700);
+        border-color: light-dark(#7d4e00, #bb8800);
+        color: #ffffff;
+    }
+
+    .toast-info {
+        background-color: light-dark(#0969da, #0969da);
+        border-color: light-dark(#0550ae, #1f6feb);
+        color: #ffffff;
+    }
 }

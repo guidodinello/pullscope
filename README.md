@@ -49,16 +49,16 @@ pnpm build:firefox # For Firefox
 
 **Chrome/Chromium:**
 
-- Open `chrome://extensions/`
-- Enable "Developer mode"
-- Click "Load unpacked"
-- Select the `.output/chrome-mv3` directory
+-   Open `chrome://extensions/`
+-   Enable "Developer mode"
+-   Click "Load unpacked"
+-   Select the `.output/chrome-mv3` directory
 
 **Firefox:**
 
-- Open `about:debugging#/runtime/this-firefox`
-- Click "Load Temporary Add-on"
-- Select the `manifest.json` file from `.output/firefox-mv2`
+-   Open `about:debugging#/runtime/this-firefox`
+-   Click "Load Temporary Add-on"
+-   Select the `manifest.json` file from `.output/firefox-mv2`
 
 ### Development Mode
 
@@ -77,8 +77,8 @@ pnpm dev:firefox # Firefox with hot reload
 3. **Click the extension icon** to open the popup
 4. **Click "Manage Filters"** to add your first filter
 5. **Create a filter** with a name and GitHub search syntax:
-   - Name: `Hide Dependabot PRs`
-   - Value: `-author:app/dependabot`
+    - Name: `Hide Dependabot PRs`
+    - Value: `-author:app/dependabot`
 6. **Save** and refresh the PR page - filter applies automatically!
 
 ### Filter Examples
@@ -106,11 +106,11 @@ See [GitHub's search syntax documentation](https://docs.github.com/en/search-git
 
 ### Technology Stack
 
-- **[WXT](https://wxt.dev/)** - Cross-browser extension framework
-- **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with runes API
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
-- **[Vite](https://vitejs.dev/)** - Fast build tool
+-   **[WXT](https://wxt.dev/)** - Cross-browser extension framework
+-   **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with runes API
+-   **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
+-   **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
+-   **[Vite](https://vitejs.dev/)** - Fast build tool
 
 ### Project Structure
 
@@ -153,24 +153,24 @@ pullscope/
 
 **Filter Store** (`src/lib/stores/filters.ts`)
 
-- Centralized state management
-- Automatic sync with browser storage
-- Real-time updates across components
-- Storage change listener for cross-tab sync
+-   Centralized state management
+-   Automatic sync with browser storage
+-   Real-time updates across components
+-   Storage change listener for cross-tab sync
 
 **GitHub Integration** (`src/lib/github.ts`)
 
-- Multiple fallback selectors for robustness
-- Token-based duplicate detection
-- Form submission triggering
-- Proper event dispatching
+-   Multiple fallback selectors for robustness
+-   Token-based duplicate detection
+-   Form submission triggering
+-   Proper event dispatching
 
 **Content Script** (`src/entrypoints/content/GithubPRFilter.svelte`)
 
-- Waits for DOM elements to load
-- Debounced URL change handler
-- Real-time filter toggle listener
-- Toast notifications
+-   Waits for DOM elements to load
+-   Debounced URL change handler
+-   Real-time filter toggle listener
+-   Toast notifications
 
 ## 🤝 Contributing
 
@@ -190,9 +190,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Guidelines
 
-- Follow the existing code style
-- Use technology standards
-- Update documentation as needed
+-   Follow the existing code style
+-   Use technology standards
+-   Update documentation as needed
 
 ## 📝 License
 
@@ -202,10 +202,10 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 **Guido Dinello**
 
-- GitHub: [@guidodinello](https://github.com/guidodinello)
-- Extension ID: `pullscope@guidodinello.dev`
+-   GitHub: [@guidodinello](https://github.com/guidodinello)
+-   Extension ID: `pullscope@guidodinello.dev`
 
 ## 🙏 Acknowledgments
 
-- Built with [WXT](https://wxt.dev/)
-- Template used [oneezy/svelte-5-extension](https://github.com/oneezy/svelte-5-extension)
+-   Built with [WXT](https://wxt.dev/)
+-   Template used [oneezy/svelte-5-extension](https://github.com/oneezy/svelte-5-extension)
