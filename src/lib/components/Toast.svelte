@@ -35,17 +35,17 @@
     };
 
     const typeStyles = {
-        info: "bg-info border-info-dark",
-        success: "bg-success border-success-dark",
-        error: "bg-error border-error-dark",
-        warning: "bg-warning border-warning-dark",
+        info: "toast-info",
+        success: "toast-success",
+        error: "toast-error",
+        warning: "toast-warning",
     } as const satisfies Record<ToastType, string>;
 </script>
 
 {#if visible}
     <div
         class={cn(
-            "animate-slide-in fixed bottom-4 right-4 z-50 max-w-md rounded-lg border-l-4 px-4 py-3 text-white shadow-lg",
+            "animate-slide-in fixed bottom-4 right-4 z-50 max-w-md rounded-lg border-l-4 px-4 py-3 shadow-lg",
             typeStyles[type]
         )}
         role="status"
