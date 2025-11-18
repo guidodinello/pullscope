@@ -2,7 +2,7 @@ import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
 import { logger } from "@/lib/utils/logger";
 import { STORAGE_KEYS } from "@/lib/constants";
 
-export async function saveFilters(filters: PRFilter[]): Promise<void> {
+export async function saveFilters(filters: PRFilter[]) {
     await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: filters });
 }
 
@@ -13,7 +13,7 @@ export async function getFilters(): Promise<PRFilter[]> {
     return data[STORAGE_KEYS.PR_FILTERS] || [];
 }
 
-export async function addFilter(filter: NewPRFilter): Promise<PRFilter[]> {
+export async function addFilter(filter: NewPRFilter) {
     logger.debug("addFilter", filter);
 
     const updatedFilters = [
@@ -29,10 +29,7 @@ export async function addFilter(filter: NewPRFilter): Promise<PRFilter[]> {
     return updatedFilters;
 }
 
-/**
- * Update an existing filter
- */
-export async function updateFilter(filter: PRFilter): Promise<PRFilter[]> {
+export async function updateFilter(filter: PRFilter) {
     logger.debug("updateFilter", filter);
 
     const filters = await getFilters();
@@ -44,14 +41,14 @@ export async function updateFilter(filter: PRFilter): Promise<PRFilter[]> {
     return updatedFilters;
 }
 
-export async function deleteFilter(id: string): Promise<PRFilter[]> {
+export async function deleteFilter(id: string) {
     const updatedFilters = (await getFilters()).filter((f) => f.id !== id);
 
     await saveFilters(updatedFilters);
     return updatedFilters;
 }
 
-export async function toggleFilter(id: string): Promise<PRFilter[]> {
+export async function toggleFilter(id: string) {
     logger.debug("toggleFilter", id);
 
     const updatedFilters = (await getFilters()).map((f) =>
