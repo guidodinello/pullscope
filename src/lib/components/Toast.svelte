@@ -1,20 +1,20 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { cn } from "../utils/cn";
+  import { TOAST_TYPES, ToastType } from "../types/toast";
+  import { TOAST_DURATION } from "../constants";
 
-  /**
-   * Toast notification component with auto-dismiss
-   */
   let {
     message,
-    duration = 3000,
-    type = "info",
+    duration = TOAST_DURATION.DEFAULT,
+    type = TOAST_TYPES.INFO,
     onClose,
-  } = $props<{
+  }: {
     message: string;
-    duration?: number;
-    type?: "info" | "success" | "error" | "warning";
+    duration: number;
+    type: ToastType;
     onClose?: () => void;
-  }>();
+  } = $props();
 
   let visible = $state(true);
 
@@ -29,24 +29,25 @@
     }
   });
 
-  function handleClose() {
+  const handleClose = () => {
     visible = false;
     onClose?.();
-  }
+  };
 
-  const typeStyles: Record<typeof type, string> = {
+  const typeStyles = {
     info: "bg-info border-info-dark",
     success: "bg-success border-success-dark",
     error: "bg-error border-error-dark",
     warning: "bg-warning border-warning-dark",
-  };
+  } as const satisfies Record<ToastType, string>;
 </script>
 
 {#if visible}
   <div
-    class="fixed bottom-4 right-4 {typeStyles[
-      type
-    ]} animate-slide-in z-50 max-w-md rounded-lg border-l-4 px-4 py-3 text-white shadow-lg"
+    class={cn(
+      "animate-slide-in fixed bottom-4 right-4 z-50 max-w-md rounded-lg border-l-4 px-4 py-3 text-white shadow-lg",
+      typeStyles[type]
+    )}
     role="status"
     aria-live="polite"
   >
