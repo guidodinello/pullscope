@@ -169,7 +169,7 @@
             </button>
             <button
                 type="submit"
-                class="bg-primary hover:bg-primary-hover focus:ring-primary rounded px-4 py-2 text-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="bg-primary hover:bg-primary-hover focus:ring-primary rounded px-4 py-2 font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isSaving}
             >
                 {isSaving ? "Saving..." : filter ? "Update Filter" : "Add Filter"}
