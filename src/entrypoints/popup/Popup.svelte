@@ -44,10 +44,10 @@
     }
 
     // Create updated filter with toggled state
-    const toggledFilter: PRFilter = {
+    const toggledFilter = {
       ...filter,
       enabled: !filter.enabled,
-    };
+    } satisfies PRFilter;
 
     // Broadcast to all GitHub PR tabs with NEW state
     broadcastFilterToggle(toggledFilter);

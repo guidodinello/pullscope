@@ -50,10 +50,10 @@
     }
 
     // Create updated filter with toggled state
-    const toggledFilter: PRFilter = {
+    const toggledFilter = {
       ...filter,
       enabled: !filter.enabled,
-    };
+    } satisfies PRFilter;
 
     // Broadcast to all GitHub PR tabs with NEW state
     broadcastFilterToggle(toggledFilter);
@@ -167,9 +167,7 @@
                 <span
                   class={cn(
                     "ml-2 rounded px-2 py-0.5 text-xs font-medium",
-                    filter.enabled
-                      ? "bg-success-light text-success-dark"
-                      : "bg-bg-tertiary text-text-secondary"
+                    filter.enabled ? "filter-badge-enabled" : "filter-badge-disabled"
                   )}
                 >
                   {filter.enabled ? "Enabled" : "Disabled"}
