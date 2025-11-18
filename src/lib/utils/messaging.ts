@@ -13,10 +13,10 @@ export async function broadcastFilterToggle(filter: PRFilter): Promise<void> {
       url: GITHUB_PATTERNS.PR_PAGE_QUERY,
     });
 
-    const message: ToggleFilterMessage = {
+    const message = {
       action: MESSAGE_ACTIONS.TOGGLE_FILTER,
       filter,
-    };
+    } satisfies ToggleFilterMessage;
 
     for (const tab of tabs) {
       if (tab.id) {
