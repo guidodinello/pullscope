@@ -1,7 +1,3 @@
-/**
- * Logger utility for consistent logging across the extension
- */
-
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 class Logger {
