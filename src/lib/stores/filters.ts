@@ -3,9 +3,6 @@ import type { PRFilter, NewPRFilter } from "../types/filter";
 import { logger } from "../utils/logger";
 import { STORAGE_KEYS } from "../constants";
 
-/**
- * Store state interface
- */
 interface FilterStoreState {
   filters: PRFilter[];
   isLoading: boolean;
@@ -77,18 +74,15 @@ function createFilterStore() {
       }
     },
 
-    /**
-     * Add a new filter
-     */
     async add(filter: NewPRFilter): Promise<PRFilter | null> {
       logger.debug("Adding filter", filter);
 
       try {
         const state = get({ subscribe });
-        const newFilter: PRFilter = {
+        const newFilter = {
           ...filter,
           id: crypto.randomUUID(),
-        };
+        } satisfies PRFilter;
 
         const updatedFilters = [...state.filters, newFilter];
         await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
@@ -107,9 +101,6 @@ function createFilterStore() {
       }
     },
 
-    /**
-     * Update an existing filter
-     */
     async update(filter: PRFilter): Promise<boolean> {
       logger.debug("Updating filter", filter);
 
@@ -132,9 +123,6 @@ function createFilterStore() {
       }
     },
 
-    /**
-     * Delete a filter by ID
-     */
     async delete(id: string): Promise<boolean> {
       logger.debug("Deleting filter", id);
 
@@ -157,9 +145,6 @@ function createFilterStore() {
       }
     },
 
-    /**
-     * Toggle a filter's enabled status
-     */
     async toggle(id: string): Promise<boolean> {
       logger.debug("Toggling filter", id);
 
@@ -184,24 +169,15 @@ function createFilterStore() {
       }
     },
 
-    /**
-     * Get all enabled filters
-     */
     getEnabled(): PRFilter[] {
       const state = get({ subscribe });
       return state.filters.filter((f) => f.enabled);
     },
 
-    /**
-     * Clear any error messages
-     */
     clearError() {
       update((s) => ({ ...s, error: null }));
     },
 
-    /**
-     * Cleanup listeners
-     */
     destroy() {
       if (storageListener) {
         browser.storage.onChanged.removeListener(storageListener);
