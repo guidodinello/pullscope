@@ -65,7 +65,7 @@
 
             if (success) {
                 toastMessage = `Filter ${filter.enabled ? "enabled" : "disabled"}: ${filter.name}`;
-                toastType = TOAST_TYPES.SUCCESS;
+                toastType = filter.enabled ? TOAST_TYPES.SUCCESS : TOAST_TYPES.INFO;
             }
         } catch (error) {
             logger.error("Error toggling filter:", error);
