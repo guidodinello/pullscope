@@ -8,6 +8,27 @@ import type {
 import { MESSAGE_ACTIONS, GITHUB_PATTERNS, CONTEXT_MENU_IDS } from "@/lib/constants";
 import { logger } from "@/lib/utils/logger";
 
+const DEFAULT_FILTERS = [
+  {
+    id: crypto.randomUUID(),
+    name: "Hide Dependabot PRs",
+    value: "-author:app/dependabot",
+    enabled: true,
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Only Open PRs",
+    value: "is:open",
+    enabled: true,
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Is a PR",
+    value: "is:pr",
+    enabled: true,
+  },
+] satisfies PRFilter[];
+
 export default defineBackground(() => {
   logger.info("GitHub PR Filters background script initialized");
 
@@ -18,23 +39,7 @@ export default defineBackground(() => {
       const existingFilters = await getFilters();
 
       if (existingFilters.length === 0) {
-        // Add some default filters as examples
-        const defaultFilters: PRFilter[] = [
-          {
-            id: crypto.randomUUID(),
-            name: "Hide Dependabot PRs",
-            value: "-author:app/dependabot",
-            enabled: true,
-          },
-          {
-            id: crypto.randomUUID(),
-            name: "Only Open PRs",
-            value: "is:open",
-            enabled: true,
-          },
-        ];
-
-        await saveFilters(defaultFilters);
+        await saveFilters(DEFAULT_FILTERS);
         logger.info("Default filters installed");
       }
 
