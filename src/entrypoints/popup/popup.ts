@@ -8,6 +8,4 @@ if (!appElement) {
     throw new Error("Failed to find app element. Cannot mount popup.");
 }
 
-mount(Popup, {
-    target: appElement,
-});
+mount(Popup, { target: appElement });

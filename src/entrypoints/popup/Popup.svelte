@@ -4,9 +4,7 @@
 
     const filterManager = useFilters();
 
-    function openOptions() {
-        browser.runtime.openOptionsPage();
-    }
+    const openOptions = () => browser.runtime.openOptionsPage();
 </script>
 
 <main class="bg-bg-primary w-72 p-4">
