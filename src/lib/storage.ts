@@ -2,16 +2,10 @@ import type { PRFilter, NewPRFilter } from "./types/filter";
 import { logger } from "./utils/logger";
 import { STORAGE_KEYS } from "./constants";
 
-/**
- * Save PR filters to browser storage
- */
 export async function saveFilters(filters: PRFilter[]): Promise<void> {
   await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: filters });
 }
 
-/**
- * Retrieve PR filters from browser storage
- */
 export async function getFilters(): Promise<PRFilter[]> {
   const data = await browser.storage.sync.get(STORAGE_KEYS.PR_FILTERS);
   logger.debug("getFilters", data[STORAGE_KEYS.PR_FILTERS] || []);
@@ -19,19 +13,16 @@ export async function getFilters(): Promise<PRFilter[]> {
   return data[STORAGE_KEYS.PR_FILTERS] || [];
 }
 
-/**
- * Add a new filter to the list
- */
 export async function addFilter(filter: NewPRFilter): Promise<PRFilter[]> {
   logger.debug("addFilter", filter);
 
-  const filters = await getFilters();
-  const newFilter: PRFilter = {
-    ...filter,
-    id: crypto.randomUUID(),
-  };
-
-  const updatedFilters = [...filters, newFilter];
+  const updatedFilters = [
+    ...(await getFilters()),
+    {
+      ...filter,
+      id: crypto.randomUUID(),
+    } satisfies PRFilter,
+  ];
   await saveFilters(updatedFilters);
 
   logger.debug("after addFilter", await getFilters());
@@ -53,25 +44,19 @@ export async function updateFilter(filter: PRFilter): Promise<PRFilter[]> {
   return updatedFilters;
 }
 
-/**
- * Delete a filter by id
- */
 export async function deleteFilter(id: string): Promise<PRFilter[]> {
-  const filters = await getFilters();
-  const updatedFilters = filters.filter((f) => f.id !== id);
+  const updatedFilters = (await getFilters()).filter((f) => f.id !== id);
 
   await saveFilters(updatedFilters);
   return updatedFilters;
 }
 
-/**
- * Toggle a filter's enabled status
- */
 export async function toggleFilter(id: string): Promise<PRFilter[]> {
   logger.debug("toggleFilter", id);
 
-  const filters = await getFilters();
-  const updatedFilters = filters.map((f) => (f.id === id ? { ...f, enabled: !f.enabled } : f));
+  const updatedFilters = (await getFilters()).map((f) =>
+    f.id === id ? { ...f, enabled: !f.enabled } : f
+  );
 
   await saveFilters(updatedFilters);
 
