@@ -8,6 +8,4 @@ if (!appElement) {
     throw new Error("Failed to find app element. Cannot mount options page.");
 }
 
-mount(Options, {
-    target: appElement,
-});
+mount(Options, { target: appElement });
