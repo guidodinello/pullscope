@@ -13,7 +13,7 @@
         TOAST_DURATION,
     } from "@/lib/constants";
     import Toast from "@/lib/components/Toast.svelte";
-    import { TOAST_TYPES, ToastType } from "@/lib/types/toast";
+    import { TOAST_TYPES, type ToastType } from "@/lib/types/toast";
 
     // Component state
     let _filtersApplied = $state(false);

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { cn } from "@/lib/utils/cn";
-    import { TOAST_TYPES, ToastType } from "@/lib/types/toast";
     import { TOAST_DURATION } from "@/lib/constants";
+    import { TOAST_TYPES, type ToastType } from "@/lib/types/toast";
 
     let {
         message,
