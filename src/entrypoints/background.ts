@@ -13,7 +13,7 @@ const DEFAULT_FILTERS = [
         id: crypto.randomUUID(),
         name: "Hide Dependabot PRs",
         value: "-author:app/dependabot",
-        enabled: true,
+        enabled: false,
     },
     {
         id: crypto.randomUUID(),
