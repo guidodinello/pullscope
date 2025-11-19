@@ -6,9 +6,3 @@
 
 # Global owner
 * @guidodinello
-
-# Branch protection rules should also be configured in GitHub settings:
-# Settings → Branches → Add branch protection rule for "main"
-# - Require pull request reviews before merging
-# - Require review from Code Owners
-# - Require status checks to pass before merging (optional)
