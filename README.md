@@ -102,75 +102,13 @@ is:open -author:app/dependabot label:"priority"
 
 See [GitHub's search syntax documentation](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for all available qualifiers.
 
-## 🏗️ Architecture
-
-### Technology Stack
+## 🏗️ Technology Stack
 
 -   **[WXT](https://wxt.dev/)** - Cross-browser extension framework
 -   **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with runes API
 -   **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
 -   **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
 -   **[Vite](https://vitejs.dev/)** - Fast build tool
-
-### Project Structure
-
-```
-pullscope/
-├── src/
-│   ├── entrypoints/          # Extension entry points
-│   │   ├── background.ts     # Background service worker
-│   │   ├── content.ts        # Content script loader
-│   │   ├── content/
-│   │   │   └── GithubPRFilter.svelte  # Main content script
-│   │   ├── popup/
-│   │   │   ├── popup.ts      # Popup entry
-│   │   │   └── Popup.svelte  # Popup UI
-│   │   └── options/
-│   │       ├── options.ts    # Options page entry
-│   │       └── Options.svelte # Options UI
-│   ├── lib/
-│   │   ├── types/            # TypeScript types
-│   │   │   └── filter.ts
-│   │   ├── stores/           # Svelte stores
-│   │   │   └── filters.ts    # Filter state management
-│   │   ├── utils/            # Utility functions
-│   │   │   ├── logger.ts     # Logging framework
-│   │   │   ├── dom.ts        # DOM utilities
-│   │   │   └── validation.ts # Filter validation
-│   │   ├── components/       # Shared UI components
-│   │   │   ├── ErrorDisplay.svelte
-│   │   │   ├── Toast.svelte
-│   │   │   └── FilterEditor.svelte
-│   │   ├── github.ts         # GitHub integration
-│   │   └── storage.ts        # Storage API wrapper
-│   └── assets/               # Icons and images
-├── wxt.config.ts             # WXT configuration
-├── tailwind.config.ts        # Tailwind configuration
-└── tsconfig.json             # TypeScript configuration
-```
-
-### Key Components
-
-**Filter Store** (`src/lib/stores/filters.ts`)
-
--   Centralized state management
--   Automatic sync with browser storage
--   Real-time updates across components
--   Storage change listener for cross-tab sync
-
-**GitHub Integration** (`src/lib/github.ts`)
-
--   Multiple fallback selectors for robustness
--   Token-based duplicate detection
--   Form submission triggering
--   Proper event dispatching
-
-**Content Script** (`src/entrypoints/content/GithubPRFilter.svelte`)
-
--   Waits for DOM elements to load
--   Debounced URL change handler
--   Real-time filter toggle listener
--   Toast notifications
 
 ## 🤝 Contributing
 
