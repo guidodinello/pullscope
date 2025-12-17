@@ -87,10 +87,13 @@
 
         await tryApplyFilters();
 
-        const observer = new MutationObserver(debouncedURLChange);
-        observer.observe(document.body, { childList: true, subtree: false });
-        cleanupFunctions.push(() => observer.disconnect());
+        // Listen for GitHub's Turbo navigation events (for SPA navigation)
+        document.addEventListener("turbo:render", debouncedURLChange);
+        cleanupFunctions.push(() =>
+            document.removeEventListener("turbo:render", debouncedURLChange)
+        );
 
+        // Also listen to popstate for back/forward navigation (fallback)
         window.addEventListener("popstate", debouncedURLChange);
         cleanupFunctions.push(() => window.removeEventListener("popstate", debouncedURLChange));
 
