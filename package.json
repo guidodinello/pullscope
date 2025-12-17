@@ -20,6 +20,7 @@
     "scripts": {
         "dev": "wxt",
         "dev:firefox": "wxt -b firefox",
+        "dev:chrome-flatpak": "CHROME_PATH=./scripts/chrome-flatpak.sh wxt",
         "build": "wxt build",
         "build:firefox": "wxt build -b firefox",
         "zip": "wxt zip",
