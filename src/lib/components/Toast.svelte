@@ -52,7 +52,7 @@
         aria-live="polite"
     >
         <div class="flex items-center justify-between gap-3">
-            <p class="flex-1 text-sm">{message}</p>
+            <p class="m-0 flex-1 text-sm leading-none">{message}</p>
             <button
                 class="rounded text-white transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white"
                 onclick={handleClose}
