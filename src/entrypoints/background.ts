@@ -11,9 +11,9 @@ import { logger } from "@/lib/utils/logger";
 const DEFAULT_FILTERS = [
     {
         id: crypto.randomUUID(),
-        name: "Hide Dependabot PRs",
-        value: "-author:app/dependabot",
-        enabled: false,
+        name: "Is a PR",
+        value: "is:pr",
+        enabled: true,
     },
     {
         id: crypto.randomUUID(),
@@ -23,9 +23,27 @@ const DEFAULT_FILTERS = [
     },
     {
         id: crypto.randomUUID(),
-        name: "Is a PR",
-        value: "is:pr",
-        enabled: true,
+        name: "Hide Dependabot PRs",
+        value: "-author:app/dependabot",
+        enabled: false,
+    },
+    {
+        id: crypto.randomUUID(),
+        name: "Assigned to Me",
+        value: "assignee:@me",
+        enabled: false,
+    },
+    {
+        id: crypto.randomUUID(),
+        name: "Created by Me",
+        value: "author:@me",
+        enabled: false,
+    },
+    {
+        id: crypto.randomUUID(),
+        name: "Review Requested from Me",
+        value: "review-requested:@me",
+        enabled: false,
     },
 ] satisfies PRFilter[];
 
