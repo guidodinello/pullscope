@@ -10,7 +10,7 @@ export const GITHUB_PATTERNS = {
     PR_PAGE_QUERY: "*://github.com/*/*/pulls*",
 
     // Used by content script, matches all github pages to avoid issues with SPA navigation
-    REPO_PAGE_PATTERN: "https://github.com/*/*",
+    REPO_PAGE_PATTERN: "https://github.com/*",
 
     // Used in background.ts for simple URL checks
     PR_PAGE_PARTIAL: "github.com",
