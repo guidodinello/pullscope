@@ -34,6 +34,12 @@ function createFilterStore() {
           ) => void)
         | null = null;
 
+    // Debounced filter update function (created once to prevent memory leaks)
+    const updateFilters = debounce((newFilters: PRFilter[]) => {
+        logger.debug("Storage changed, updating filters", newFilters);
+        update((state) => ({ ...state, filters: newFilters }));
+    }, 100);
+
     // Initialization state to prevent race conditions
     let isInitialized = false;
     let initializationPromise: Promise<void> | null = null;
@@ -70,12 +76,7 @@ function createFilterStore() {
                         isLoading: false,
                     }));
 
-                    // Set up storage change listener with debouncing (only once)
-                    const updateFilters = debounce((newFilters: PRFilter[]) => {
-                        logger.debug("Storage changed, updating filters", newFilters);
-                        update((state) => ({ ...state, filters: newFilters }));
-                    }, 100);
-
+                    // Set up storage change listener (uses pre-created debounced function)
                     storageListener = (changes, areaName) => {
                         if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
                             const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
