@@ -82,9 +82,10 @@ function createFilterStore() {
                             updateFilters(newFilters);
                         }
                     };
-                    browser.storage.onChanged.addListener(storageListener);
 
+                    // Set initialized flag before adding listener to prevent duplicate listeners if error occurs
                     isInitialized = true;
+                    browser.storage.onChanged.addListener(storageListener);
                 } catch (err) {
                     logger.error("Failed to load filters", err);
                     update((state) => ({

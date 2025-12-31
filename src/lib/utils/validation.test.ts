@@ -78,6 +78,12 @@ describe("validateFilter", () => {
         it("should accept qualifiers with quoted values", () => {
             expect(validateFilter('label:"needs review"').isValid).toBe(true);
         });
+
+        it("should accept edge case qualifiers", () => {
+            expect(validateFilter("no:assignee").isValid).toBe(true);
+            expect(validateFilter("archived:false").isValid).toBe(true);
+            expect(validateFilter("locked:true").isValid).toBe(true);
+        });
     });
 
     describe("Invalid filters", () => {
@@ -101,12 +107,6 @@ describe("validateFilter", () => {
             const result = validateFilter("invalid:qualifier");
             expect(result.isValid).toBe(false);
             expect(result.error).toContain("Unknown qualifier");
-        });
-
-        it("should accept edge case qualifiers", () => {
-            expect(validateFilter("no:assignee").isValid).toBe(true);
-            expect(validateFilter("archived:false").isValid).toBe(true);
-            expect(validateFilter("locked:true").isValid).toBe(true);
         });
 
         it("should reject qualifiers without values", () => {
