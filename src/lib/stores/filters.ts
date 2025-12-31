@@ -2,6 +2,8 @@ import { writable, derived, get } from "svelte/store";
 import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
 import { logger } from "@/lib/utils/logger";
 import { STORAGE_KEYS } from "@/lib/constants";
+import { loadFilters, saveFilters } from "@/lib/utils/storage";
+import { debounce } from "@/lib/utils/debounce";
 
 interface FilterStoreState {
     filters: PRFilter[];
@@ -32,6 +34,10 @@ function createFilterStore() {
           ) => void)
         | null = null;
 
+    // Initialization state to prevent race conditions
+    let isInitialized = false;
+    let initializationPromise: Promise<void> | null = null;
+
     return {
         subscribe,
 
@@ -39,39 +45,59 @@ function createFilterStore() {
          * Initialize the store by loading filters from storage
          */
         async init() {
+            // Return existing initialization if already in progress
+            if (initializationPromise) {
+                return initializationPromise;
+            }
+
+            // Skip if already initialized
+            if (isInitialized) {
+                logger.debug("Filter store already initialized");
+                return;
+            }
+
             logger.debug("Initializing filter store");
             update((state) => ({ ...state, isLoading: true, error: null }));
 
-            try {
-                const data = await browser.storage.sync.get(STORAGE_KEYS.PR_FILTERS);
-                const filters = (data[STORAGE_KEYS.PR_FILTERS] || []) as PRFilter[];
+            initializationPromise = (async () => {
+                try {
+                    const filters = await loadFilters();
 
-                logger.debug("Loaded filters from storage", filters);
-                update((state) => ({
-                    ...state,
-                    filters,
-                    isLoading: false,
-                }));
+                    logger.debug("Loaded filters from storage", filters);
+                    update((state) => ({
+                        ...state,
+                        filters,
+                        isLoading: false,
+                    }));
 
-                // Set up storage change listener
-                if (!storageListener) {
+                    // Set up storage change listener with debouncing (only once)
+                    const updateFilters = debounce((newFilters: PRFilter[]) => {
+                        logger.debug("Storage changed, updating filters", newFilters);
+                        update((state) => ({ ...state, filters: newFilters }));
+                    }, 100);
+
                     storageListener = (changes, areaName) => {
                         if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
                             const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
-                            logger.debug("Storage changed, updating filters", newFilters);
-                            update((state) => ({ ...state, filters: newFilters }));
+                            updateFilters(newFilters);
                         }
                     };
                     browser.storage.onChanged.addListener(storageListener);
+
+                    isInitialized = true;
+                } catch (err) {
+                    logger.error("Failed to load filters", err);
+                    update((state) => ({
+                        ...state,
+                        isLoading: false,
+                        error: "Failed to load filters. Please try again.",
+                    }));
+                } finally {
+                    initializationPromise = null;
                 }
-            } catch (err) {
-                logger.error("Failed to load filters", err);
-                update((state) => ({
-                    ...state,
-                    isLoading: false,
-                    error: "Failed to load filters. Please try again.",
-                }));
-            }
+            })();
+
+            return initializationPromise;
         },
 
         async add(filter: NewPRFilter): Promise<PRFilter | null> {
@@ -85,7 +111,7 @@ function createFilterStore() {
                 } satisfies PRFilter;
 
                 const updatedFilters = [...state.filters, newFilter];
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
 
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
                 logger.info("Filter added successfully", newFilter);
@@ -108,7 +134,7 @@ function createFilterStore() {
                 const state = get({ subscribe });
                 const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
 
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
                 logger.info("Filter updated successfully", filter);
@@ -130,7 +156,7 @@ function createFilterStore() {
                 const state = get({ subscribe });
                 const updatedFilters = state.filters.filter((f) => f.id !== id);
 
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
                 logger.info("Filter deleted successfully", id);
@@ -154,7 +180,7 @@ function createFilterStore() {
                     f.id === id ? { ...f, enabled: !f.enabled } : f
                 );
 
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
 
                 logger.info("Filter toggled successfully", id);
@@ -183,6 +209,8 @@ function createFilterStore() {
                 browser.storage.onChanged.removeListener(storageListener);
                 storageListener = null;
             }
+            isInitialized = false;
+            initializationPromise = null;
         },
     };
 }
