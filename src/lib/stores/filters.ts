@@ -40,10 +40,6 @@ function createFilterStore() {
         update((state) => ({ ...state, filters: newFilters }));
     }, 100);
 
-    // Initialization state to prevent race conditions
-    let isInitialized = false;
-    let initializationPromise: Promise<void> | null = null;
-
     return {
         subscribe,
 
@@ -51,60 +47,41 @@ function createFilterStore() {
          * Initialize the store by loading filters from storage
          */
         async init() {
-            // Return existing initialization if already in progress
-            if (initializationPromise) {
-                return initializationPromise;
-            }
-
-            // Skip if already initialized
-            if (isInitialized) {
-                logger.debug("Filter store already initialized");
-                return;
-            }
-
             logger.debug("Initializing filter store");
             update((state) => ({ ...state, isLoading: true, error: null }));
 
-            initializationPromise = (async () => {
-                try {
-                    const filters = await loadFilters();
+            try {
+                const filters = await loadFilters();
 
-                    logger.debug("Loaded filters from storage", filters);
-                    update((state) => ({
-                        ...state,
-                        filters,
-                        isLoading: false,
-                    }));
+                logger.debug("Loaded filters from storage", filters);
+                update((state) => ({
+                    ...state,
+                    filters,
+                    isLoading: false,
+                }));
 
-                    // Remove existing listener if present
-                    if (storageListener) {
-                        browser.storage.onChanged.removeListener(storageListener);
-                    }
-
-                    // Set up storage change listener (uses pre-created debounced function)
-                    storageListener = (changes, areaName) => {
-                        if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
-                            const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
-                            updateFilters(newFilters);
-                        }
-                    };
-
-                    browser.storage.onChanged.addListener(storageListener);
-                    isInitialized = true;
-                } catch (err) {
-                    logger.error("Failed to load filters", err);
-                    update((state) => ({
-                        ...state,
-                        isLoading: false,
-                        error: "Failed to load filters. Please try again.",
-                    }));
-                    isInitialized = false;
-                } finally {
-                    initializationPromise = null;
+                // Remove existing listener if present
+                if (storageListener) {
+                    browser.storage.onChanged.removeListener(storageListener);
                 }
-            })();
 
-            return initializationPromise;
+                // Set up storage change listener (uses pre-created debounced function)
+                storageListener = (changes, areaName) => {
+                    if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
+                        const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
+                        updateFilters(newFilters);
+                    }
+                };
+
+                browser.storage.onChanged.addListener(storageListener);
+            } catch (err) {
+                logger.error("Failed to load filters", err);
+                update((state) => ({
+                    ...state,
+                    isLoading: false,
+                    error: "Failed to load filters. Please try again.",
+                }));
+            }
         },
 
         async add(filter: NewPRFilter): Promise<PRFilter | null> {
@@ -216,8 +193,6 @@ function createFilterStore() {
                 browser.storage.onChanged.removeListener(storageListener);
                 storageListener = null;
             }
-            isInitialized = false;
-            initializationPromise = null;
         },
     };
 }
