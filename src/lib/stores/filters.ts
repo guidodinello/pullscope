@@ -2,6 +2,8 @@ import { writable, derived, get } from "svelte/store";
 import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
 import { logger } from "@/lib/utils/logger";
 import { STORAGE_KEYS } from "@/lib/constants";
+import { loadFilters, saveFilters } from "@/lib/utils/storage";
+import { debounce } from "@/lib/utils/debounce";
 
 interface FilterStoreState {
     filters: PRFilter[];
@@ -32,6 +34,12 @@ function createFilterStore() {
           ) => void)
         | null = null;
 
+    // Debounced filter update function (created once to prevent memory leaks)
+    const updateFilters = debounce((newFilters: PRFilter[]) => {
+        logger.debug("Storage changed, updating filters", newFilters);
+        update((state) => ({ ...state, filters: newFilters }));
+    }, 100);
+
     return {
         subscribe,
 
@@ -43,8 +51,7 @@ function createFilterStore() {
             update((state) => ({ ...state, isLoading: true, error: null }));
 
             try {
-                const data = await browser.storage.sync.get(STORAGE_KEYS.PR_FILTERS);
-                const filters = (data[STORAGE_KEYS.PR_FILTERS] || []) as PRFilter[];
+                const filters = await loadFilters();
 
                 logger.debug("Loaded filters from storage", filters);
                 update((state) => ({
@@ -53,17 +60,20 @@ function createFilterStore() {
                     isLoading: false,
                 }));
 
-                // Set up storage change listener
-                if (!storageListener) {
-                    storageListener = (changes, areaName) => {
-                        if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
-                            const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
-                            logger.debug("Storage changed, updating filters", newFilters);
-                            update((state) => ({ ...state, filters: newFilters }));
-                        }
-                    };
-                    browser.storage.onChanged.addListener(storageListener);
+                // Remove existing listener if present
+                if (storageListener) {
+                    browser.storage.onChanged.removeListener(storageListener);
                 }
+
+                // Set up storage change listener (uses pre-created debounced function)
+                storageListener = (changes, areaName) => {
+                    if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
+                        const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
+                        updateFilters(newFilters);
+                    }
+                };
+
+                browser.storage.onChanged.addListener(storageListener);
             } catch (err) {
                 logger.error("Failed to load filters", err);
                 update((state) => ({
@@ -77,26 +87,22 @@ function createFilterStore() {
         async add(filter: NewPRFilter): Promise<PRFilter | null> {
             logger.debug("Adding filter", filter);
 
+            const state = get({ subscribe });
+            const newFilter = {
+                ...filter,
+                id: crypto.randomUUID(),
+            } satisfies PRFilter;
+
+            const updatedFilters = [...state.filters, newFilter];
+
             try {
-                const state = get({ subscribe });
-                const newFilter = {
-                    ...filter,
-                    id: crypto.randomUUID(),
-                } satisfies PRFilter;
-
-                const updatedFilters = [...state.filters, newFilter];
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
-
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
                 logger.info("Filter added successfully", newFilter);
-
                 return newFilter;
             } catch (err) {
                 logger.error("Failed to add filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to add filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to add filter. Please try again." }));
                 return null;
             }
         },
@@ -104,21 +110,17 @@ function createFilterStore() {
         async update(filter: PRFilter): Promise<boolean> {
             logger.debug("Updating filter", filter);
 
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
+
             try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
-
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter updated successfully", filter);
                 return true;
             } catch (err) {
                 logger.error("Failed to update filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to update filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to update filter. Please try again." }));
                 return false;
             }
         },
@@ -126,21 +128,17 @@ function createFilterStore() {
         async delete(id: string): Promise<boolean> {
             logger.debug("Deleting filter", id);
 
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.filter((f) => f.id !== id);
+
             try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.filter((f) => f.id !== id);
-
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter deleted successfully", id);
                 return true;
             } catch (err) {
                 logger.error("Failed to delete filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to delete filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to delete filter. Please try again." }));
                 return false;
             }
         },
@@ -148,23 +146,19 @@ function createFilterStore() {
         async toggle(id: string): Promise<boolean> {
             logger.debug("Toggling filter", id);
 
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.map((f) =>
+                f.id === id ? { ...f, enabled: !f.enabled } : f
+            );
+
             try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.map((f) =>
-                    f.id === id ? { ...f, enabled: !f.enabled } : f
-                );
-
-                await browser.storage.sync.set({ [STORAGE_KEYS.PR_FILTERS]: updatedFilters });
+                await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter toggled successfully", id);
                 return true;
             } catch (err) {
                 logger.error("Failed to toggle filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to toggle filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to toggle filter. Please try again." }));
                 return false;
             }
         },

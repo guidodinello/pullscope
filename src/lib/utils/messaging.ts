@@ -20,7 +20,12 @@ export async function broadcastFilterToggle(filter: PRFilter): Promise<void> {
 
         for (const tab of tabs) {
             if (tab.id) {
-                browser.tabs.sendMessage(tab.id, message);
+                try {
+                    await browser.tabs.sendMessage(tab.id, message);
+                } catch (err) {
+                    // Silently ignore errors for individual tabs (e.g., content script not ready, tab closed)
+                    logger.debug(`Failed to send message to tab ${tab.id}:`, err);
+                }
             }
         }
     } catch (err) {

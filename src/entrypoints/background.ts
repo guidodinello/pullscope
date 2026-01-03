@@ -1,5 +1,4 @@
-import { getFilters, saveFilters } from "@/lib/storage";
-import type { PRFilter } from "@/lib/types/filter";
+import type { PRFilter, NewPRFilter } from "@/lib/types/filter";
 import type {
     ExtensionMessage,
     MessageResponse,
@@ -7,45 +6,40 @@ import type {
 } from "@/lib/types/messages";
 import { MESSAGE_ACTIONS, GITHUB_PATTERNS, CONTEXT_MENU_IDS } from "@/lib/constants";
 import { logger } from "@/lib/utils/logger";
+import { loadFilters, saveFilters } from "@/lib/utils/storage";
 
 const DEFAULT_FILTERS = [
     {
-        id: crypto.randomUUID(),
         name: "Is a PR",
         value: "is:pr",
         enabled: true,
     },
     {
-        id: crypto.randomUUID(),
         name: "Only Open PRs",
         value: "is:open",
         enabled: true,
     },
     {
-        id: crypto.randomUUID(),
         name: "Hide Dependabot PRs",
         value: "-author:app/dependabot",
         enabled: false,
     },
     {
-        id: crypto.randomUUID(),
         name: "Assigned to Me",
         value: "assignee:@me",
         enabled: false,
     },
     {
-        id: crypto.randomUUID(),
         name: "Created by Me",
         value: "author:@me",
         enabled: false,
     },
     {
-        id: crypto.randomUUID(),
         name: "Review Requested from Me",
         value: "review-requested:@me",
         enabled: false,
     },
-] satisfies PRFilter[];
+] satisfies NewPRFilter[];
 
 export default defineBackground(() => {
     logger.info("GitHub PR Filters background script initialized");
@@ -54,10 +48,15 @@ export default defineBackground(() => {
     browser.runtime.onInstalled.addListener(async (details) => {
         if (details.reason === "install") {
             // Check if we already have filters
-            const existingFilters = await getFilters();
+            const existingFilters = await loadFilters();
 
             if (existingFilters.length === 0) {
-                await saveFilters(DEFAULT_FILTERS);
+                // Add IDs to default filters and save
+                const filtersWithIds: PRFilter[] = DEFAULT_FILTERS.map((filter) => ({
+                    ...filter,
+                    id: crypto.randomUUID(),
+                }));
+                await saveFilters(filtersWithIds);
                 logger.info("Default filters installed");
             }
 

@@ -5,29 +5,14 @@ export const SELECTORS = {
     GITHUB_SEARCH: "#js-issues-search",
 } as const;
 
-/**
- * Common GitHub search input selectors
- * Ordered by priority (most specific to most general)
- */
-const SEARCH_INPUT_SELECTORS = [
-    SELECTORS.GITHUB_SEARCH,
-    'input[name="q"]',
-    'input[aria-label*="Search"]',
-] as const;
-
 export const isGitHubPRPage = (url: string): boolean => GITHUB_PATTERNS.PR_PAGE_REGEX.test(url);
 
 export function getSearchInputElement(): HTMLInputElement | null {
-    for (const selector of SEARCH_INPUT_SELECTORS) {
-        const element = document.querySelector<HTMLInputElement>(selector);
-        if (element) {
-            logger.debug(`Found search input with selector: ${selector}`);
-            return element;
-        }
+    const element = document.querySelector<HTMLInputElement>(SELECTORS.GITHUB_SEARCH);
+    if (!element) {
+        logger.warn("Could not find GitHub search input element");
     }
-
-    logger.warn("Could not find GitHub search input element");
-    return null;
+    return element;
 }
 
 /**

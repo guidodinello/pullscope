@@ -132,12 +132,20 @@
 
     /* Input fields */
     input[type="text"],
-    input[type="checkbox"],
     select,
     textarea {
         background-color: light-dark(#ffffff, #0d1117);
         color: light-dark(#24292f, #e6edf3);
         border-color: light-dark(#d1d9e0, #30363d);
+    }
+
+    input[type="checkbox"] {
+        border-color: light-dark(#d1d9e0, #30363d);
+    }
+
+    input[type="checkbox"]:checked {
+        background-color: light-dark(#0969da, #58a6ff);
+        border-color: light-dark(#0969da, #58a6ff);
     }
 
     input[type="text"]:focus,

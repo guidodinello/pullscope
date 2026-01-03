@@ -2,7 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import { isGitHubPRPage, applyFilters, addFilter, removeFilter, SELECTORS } from "@/lib/github";
     import { filterStore } from "@/lib/stores/filters";
-    import { waitForElement, debounce } from "@/lib/utils/dom";
+    import { waitForElement } from "@/lib/utils/dom";
+    import { debounce } from "@/lib/utils/debounce";
     import { logger } from "@/lib/utils/logger";
     import type { PRFilter } from "@/lib/types/filter";
     import type { ExtensionMessage } from "@/lib/types/messages";
