@@ -76,6 +76,11 @@ function createFilterStore() {
                         isLoading: false,
                     }));
 
+                    // Remove existing listener if present
+                    if (storageListener) {
+                        browser.storage.onChanged.removeListener(storageListener);
+                    }
+
                     // Set up storage change listener (uses pre-created debounced function)
                     storageListener = (changes, areaName) => {
                         if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
@@ -84,9 +89,8 @@ function createFilterStore() {
                         }
                     };
 
-                    // Set initialized flag before adding listener to prevent duplicate listeners if error occurs
-                    isInitialized = true;
                     browser.storage.onChanged.addListener(storageListener);
+                    isInitialized = true;
                 } catch (err) {
                     logger.error("Failed to load filters", err);
                     update((state) => ({
@@ -94,6 +98,7 @@ function createFilterStore() {
                         isLoading: false,
                         error: "Failed to load filters. Please try again.",
                     }));
+                    isInitialized = false;
                 } finally {
                     initializationPromise = null;
                 }
