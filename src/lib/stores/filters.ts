@@ -87,26 +87,22 @@ function createFilterStore() {
         async add(filter: NewPRFilter): Promise<PRFilter | null> {
             logger.debug("Adding filter", filter);
 
+            const state = get({ subscribe });
+            const newFilter = {
+                ...filter,
+                id: crypto.randomUUID(),
+            } satisfies PRFilter;
+
+            const updatedFilters = [...state.filters, newFilter];
+
             try {
-                const state = get({ subscribe });
-                const newFilter = {
-                    ...filter,
-                    id: crypto.randomUUID(),
-                } satisfies PRFilter;
-
-                const updatedFilters = [...state.filters, newFilter];
                 await saveFilters(updatedFilters);
-
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
                 logger.info("Filter added successfully", newFilter);
-
                 return newFilter;
             } catch (err) {
                 logger.error("Failed to add filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to add filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to add filter. Please try again." }));
                 return null;
             }
         },
@@ -114,21 +110,17 @@ function createFilterStore() {
         async update(filter: PRFilter): Promise<boolean> {
             logger.debug("Updating filter", filter);
 
-            try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.map((f) => (f.id === filter.id ? filter : f));
 
+            try {
                 await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter updated successfully", filter);
                 return true;
             } catch (err) {
                 logger.error("Failed to update filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to update filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to update filter. Please try again." }));
                 return false;
             }
         },
@@ -136,21 +128,17 @@ function createFilterStore() {
         async delete(id: string): Promise<boolean> {
             logger.debug("Deleting filter", id);
 
-            try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.filter((f) => f.id !== id);
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.filter((f) => f.id !== id);
 
+            try {
                 await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter deleted successfully", id);
                 return true;
             } catch (err) {
                 logger.error("Failed to delete filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to delete filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to delete filter. Please try again." }));
                 return false;
             }
         },
@@ -158,23 +146,19 @@ function createFilterStore() {
         async toggle(id: string): Promise<boolean> {
             logger.debug("Toggling filter", id);
 
-            try {
-                const state = get({ subscribe });
-                const updatedFilters = state.filters.map((f) =>
-                    f.id === id ? { ...f, enabled: !f.enabled } : f
-                );
+            const state = get({ subscribe });
+            const updatedFilters = state.filters.map((f) =>
+                f.id === id ? { ...f, enabled: !f.enabled } : f
+            );
 
+            try {
                 await saveFilters(updatedFilters);
                 update((s) => ({ ...s, filters: updatedFilters, error: null }));
-
                 logger.info("Filter toggled successfully", id);
                 return true;
             } catch (err) {
                 logger.error("Failed to toggle filter", err);
-                update((s) => ({
-                    ...s,
-                    error: "Failed to toggle filter. Please try again.",
-                }));
+                update((s) => ({ ...s, error: "Failed to toggle filter. Please try again." }));
                 return false;
             }
         },
