@@ -87,11 +87,13 @@
 
         {#if editingFilter}
             <div class="mb-6">
-                <FilterEditor
-                    filter={editingFilter}
-                    onSave={handleSaveFilter}
-                    onCancel={handleCancelEdit}
-                />
+                {#key editingFilter.id}
+                    <FilterEditor
+                        filter={editingFilter}
+                        onSave={handleSaveFilter}
+                        onCancel={handleCancelEdit}
+                    />
+                {/key}
             </div>
         {/if}
 
