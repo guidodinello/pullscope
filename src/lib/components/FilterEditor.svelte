@@ -150,7 +150,7 @@
                     type="checkbox"
                     id="enabled"
                     bind:checked={enabled}
-                    class="text-primary focus:ring-primary size-4 rounded transition-colors focus:ring-2 focus:ring-offset-2"
+                    class="focus:ring-primary size-4 rounded transition-colors focus:ring-2 focus:ring-offset-2"
                 />
                 <label for="enabled" class="text-text-primary ml-2 block text-sm">
                     Enable this filter
