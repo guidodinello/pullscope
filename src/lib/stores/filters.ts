@@ -27,12 +27,7 @@ function createFilterStore() {
     });
 
     // Storage change listener
-    let storageListener:
-        | ((
-              changes: Record<string, { newValue?: PRFilter[]; oldValue?: PRFilter[] }>,
-              areaName: string
-          ) => void)
-        | null = null;
+    let storageListener: Parameters<typeof browser.storage.onChanged.addListener>[0] | null = null;
 
     // Debounced filter update function (created once to prevent memory leaks)
     const updateFilters = debounce((newFilters: PRFilter[]) => {
@@ -67,8 +62,9 @@ function createFilterStore() {
 
                 // Set up storage change listener (uses pre-created debounced function)
                 storageListener = (changes, areaName) => {
-                    if (areaName === "sync" && changes[STORAGE_KEYS.PR_FILTERS]) {
-                        const newFilters = changes[STORAGE_KEYS.PR_FILTERS].newValue || [];
+                    const change = changes[STORAGE_KEYS.PR_FILTERS];
+                    if (areaName === "sync" && change) {
+                        const newFilters = (change.newValue as PRFilter[] | undefined) ?? [];
                         updateFilters(newFilters);
                     }
                 };

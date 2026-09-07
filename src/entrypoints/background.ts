@@ -68,8 +68,16 @@ export default defineBackground(() => {
 
     // Listen for commands from browser action
     browser.runtime.onMessage.addListener(
-        async (message: ExtensionMessage, _sender): Promise<MessageResponse | undefined> => {
-            if (message.action === MESSAGE_ACTIONS.APPLY_FILTERS) {
+        (
+            message: ExtensionMessage,
+            _sender,
+            sendResponse: (response?: MessageResponse) => void
+        ) => {
+            if (message.action !== MESSAGE_ACTIONS.APPLY_FILTERS) {
+                return undefined;
+            }
+
+            (async () => {
                 const tabs = await browser.tabs.query({
                     active: true,
                     currentWindow: true,
@@ -87,21 +95,22 @@ export default defineBackground(() => {
                             await browser.tabs.sendMessage(currentTab.id, {
                                 action: MESSAGE_ACTIONS.APPLY_FILTERS_NOW,
                             } satisfies ApplyFiltersNowMessage);
-                            return { success: true };
+                            sendResponse({ success: true });
                         } catch (err) {
                             logger.error("Failed to send message to tab", err);
-                            return {
+                            sendResponse({
                                 success: false,
                                 message: "Failed to communicate with page",
-                            };
+                            });
                         }
+                        return;
                     }
                 }
 
-                return { success: false, message: "Not a GitHub PR page" };
-            }
+                sendResponse({ success: false, message: "Not a GitHub PR page" });
+            })();
 
-            return undefined;
+            return true; // keep the message channel open for the async sendResponse above
         }
     );
 
