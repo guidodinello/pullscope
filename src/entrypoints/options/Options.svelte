@@ -76,7 +76,7 @@
         {#if !editingFilter && !showAddForm}
             <div class="mb-6">
                 <button
-                    class="bg-primary hover:bg-primary-hover focus:ring-primary flex items-center gap-2 rounded px-4 py-2 font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    class="bg-primary hover:bg-primary-hover focus:ring-primary flex items-center gap-2 rounded px-4 py-2 font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                     onclick={handleAddNew}
                 >
                     <Icon name="plus" class="size-5" />
@@ -138,7 +138,7 @@
                         <div class="flex gap-1">
                             <button
                                 class={cn(
-                                    "rounded p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
+                                    "rounded p-2 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none",
                                     filter.enabled
                                         ? "text-success hover:bg-success-light focus:ring-success hover:scale-110"
                                         : "text-text-tertiary hover:bg-bg-tertiary focus:ring-text-secondary opacity-60 hover:opacity-100"
@@ -155,7 +155,7 @@
                                 />
                             </button>
                             <button
-                                class="text-text-secondary hover:bg-bg-tertiary hover:text-text-primary focus:ring-text-secondary rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                class="text-text-secondary hover:bg-bg-tertiary hover:text-text-primary focus:ring-text-secondary rounded p-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                                 title="Edit filter"
                                 onclick={() => handleEditFilter(filter)}
                                 aria-label={`Edit ${filter.name}`}
@@ -163,7 +163,7 @@
                                 <Icon name="edit" class="size-5" />
                             </button>
                             <button
-                                class="text-error hover:bg-error-light focus:ring-error rounded p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                class="text-error hover:bg-error-light focus:ring-error rounded p-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                                 title="Delete filter"
                                 onclick={() => handleDeleteFilter(filter.id)}
                                 aria-label={`Delete ${filter.name}`}
