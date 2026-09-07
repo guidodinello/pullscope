@@ -36,7 +36,7 @@
 
                     <button
                         class={cn(
-                            "focus:ring-primary relative me-2 h-5 w-10 rounded-full shadow-inner transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
+                            "focus:ring-primary relative me-2 h-5 w-10 rounded-full shadow-inner transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none",
                             filter.enabled
                                 ? "bg-success hover:bg-success-dark focus:ring-success"
                                 : "bg-text-tertiary hover:bg-text-secondary focus:ring-text-secondary"
@@ -50,7 +50,7 @@
                     >
                         <span
                             class={cn(
-                                "absolute left-0.5 top-0.5 size-4 transform rounded-full bg-white shadow-md transition-all duration-200 ease-in-out",
+                                "absolute top-0.5 left-0.5 size-4 transform rounded-full bg-white shadow-md transition-all duration-200 ease-in-out",
                                 filter.enabled && "translate-x-5 scale-105"
                             )}
                         ></span>
@@ -62,7 +62,7 @@
 
     <div class="mt-4">
         <button
-            class="bg-primary hover:bg-primary-hover focus:ring-primary w-full rounded px-3 py-2 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+            class="bg-primary hover:bg-primary-hover focus:ring-primary w-full rounded px-3 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
             onclick={openOptions}
             aria-label="Open filter management page"
         >

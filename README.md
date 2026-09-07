@@ -49,16 +49,16 @@ pnpm build:firefox # For Firefox
 
 **Chrome/Chromium:**
 
--   Open `chrome://extensions/`
--   Enable "Developer mode"
--   Click "Load unpacked"
--   Select the `.output/chrome-mv3` directory
+- Open `chrome://extensions/`
+- Enable "Developer mode"
+- Click "Load unpacked"
+- Select the `.output/chrome-mv3` directory
 
 **Firefox:**
 
--   Open `about:debugging#/runtime/this-firefox`
--   Click "Load Temporary Add-on"
--   Select the `manifest.json` file from `.output/firefox-mv2`
+- Open `about:debugging#/runtime/this-firefox`
+- Click "Load Temporary Add-on"
+- Select the `manifest.json` file from `.output/firefox-mv2`
 
 ### Development Mode
 
@@ -104,11 +104,11 @@ See [GitHub's search syntax documentation](https://docs.github.com/en/search-git
 
 ## 🏗️ Technology Stack
 
--   **[WXT](https://wxt.dev/)** - Cross-browser extension framework
--   **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with runes API
--   **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
--   **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
--   **[Vite](https://vitejs.dev/)** - Fast build tool
+- **[WXT](https://wxt.dev/)** - Cross-browser extension framework
+- **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with runes API
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
+- **[Vite](https://vitejs.dev/)** - Fast build tool
 
 ## 🤝 Contributing
 
@@ -128,9 +128,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Guidelines
 
--   Follow the existing code style
--   Use technology standards
--   Update documentation as needed
+- Follow the existing code style
+- Use technology standards
+- Update documentation as needed
 
 ## 📝 License
 
@@ -140,10 +140,10 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 **Guido Dinello**
 
--   GitHub: [@guidodinello](https://github.com/guidodinello)
--   Extension ID: `pullscope@guidodinello.dev`
+- GitHub: [@guidodinello](https://github.com/guidodinello)
+- Extension ID: `pullscope@guidodinello.dev`
 
 ## 🙏 Acknowledgments
 
--   Built with [WXT](https://wxt.dev/)
--   Template used [oneezy/svelte-5-extension](https://github.com/oneezy/svelte-5-extension)
+- Built with [WXT](https://wxt.dev/)
+- Template used [oneezy/svelte-5-extension](https://github.com/oneezy/svelte-5-extension)

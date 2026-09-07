@@ -162,14 +162,14 @@
             <button
                 type="button"
                 onclick={onCancel}
-                class="bg-bg-tertiary text-text-primary hover:bg-border focus:ring-text-secondary rounded px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="bg-bg-tertiary text-text-primary hover:bg-border focus:ring-text-secondary rounded px-4 py-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 disabled={isSaving}
             >
                 Cancel
             </button>
             <button
                 type="submit"
-                class="bg-primary hover:bg-primary-hover focus:ring-primary rounded px-4 py-2 font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                class="bg-primary hover:bg-primary-hover focus:ring-primary rounded px-4 py-2 font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isSaving}
             >
                 {isSaving ? "Saving..." : filter ? "Update Filter" : "Add Filter"}

@@ -68,7 +68,7 @@ export function validateFilter(value: string): ValidationResult {
     for (const token of tokens) {
         // Check for invalid qualifier syntax (e.g., "author::" or "author:")
         if (token.includes(":")) {
-            const [qualifier, ...valueParts] = token.split(":");
+            const [qualifier = "", ...valueParts] = token.split(":");
 
             // Remove leading - or + from qualifier
             const cleanQualifier = qualifier.replace(/^[-+]/, "");
