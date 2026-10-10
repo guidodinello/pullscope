@@ -1,0 +1,136 @@
+# Tag-triggered release: a pushed `vX.Y.Z` tag becomes a GitHub Release whose
+# notes are that version's section of CHANGELOG.md and whose assets are the
+# built artifacts. See dev-standards' docs/github-standard.md § Releases for the policy
+# (SemVer, curated Keep a Changelog, `chore(release): vX.Y.Z` PR -> squash ->
+# annotated tag on the merge commit).
+#
+# Adopt only where a release means something (a library others pin, an app
+# that ships installable artifacts) — not an app repo that just tracks a
+# dependency. Adapted from dev-standards' templates/release/release.yml for a
+# pnpm/wxt extension: pnpm + Node toolchain, `wxt zip` for chrome and firefox.
+#
+# Fails before publishing anything if: the tag isn't vX.Y.Z[-pre], the tag
+# doesn't match the manifest version (pyproject.toml `[project].version` or
+# package.json `version`; a dynamic/VCS-derived version is rejected), the tagged
+# commit isn't on the default branch, CHANGELOG.md has no section for the
+# version, or the build produces no artifacts. The tag must equal the manifest version verbatim (v1.2.3rc1 for a PEP 440
+# 1.2.3rc1); a version containing a letter or `-` is published as a pre-release.
+#
+# Least privilege: `contents: write` is granted to this workflow's one job and
+# nowhere else (CI keeps `contents: read`).
+name: Release
+
+on:
+    push:
+        tags: ["v*"]
+
+# A tag push is one-shot; never cancel a release half-way through publishing.
+concurrency:
+    group: release-${{ github.ref }}
+    cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+    release:
+        name: Release
+        # Same runner switch as CI — see dev-standards' README § CI runners.
+        runs-on: ${{ fromJSON(vars.CI_RUNNERS || '["ubuntu-latest"]') }}
+        permissions:
+            contents: write
+        env:
+            # `wxt zip` writes pullscope-<version>-chrome.zip; `wxt zip -b firefox`
+            # writes -firefox.zip and -sources.zip (what past releases attached).
+            BUILD_COMMAND: pnpm install --frozen-lockfile && pnpm zip && pnpm zip:firefox
+            ARTIFACTS: .output/*.zip
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  # Full history so we can check the tag's commit is on the default branch.
+                  fetch-depth: 0
+
+            - name: Verify tag, version, and branch
+              env:
+                  TAG: ${{ github.ref_name }}
+                  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+              run: |
+                  if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+.]?[0-9A-Za-z.+-]+)?$ ]]; then
+                    echo "::error::Tag '$TAG' is not vX.Y.Z (optionally with a pre-release suffix like -rc1 or rc1)"
+                    exit 1
+                  fi
+                  version="${TAG#v}"
+
+                  manifest_version="$(python3 - <<'PY'
+                  import json
+                  import pathlib
+                  import sys
+                  import tomllib
+
+                  found = {}
+                  if pathlib.Path("pyproject.toml").is_file():
+                      with open("pyproject.toml", "rb") as f:
+                          found["pyproject.toml"] = tomllib.load(f).get("project", {}).get("version", "")
+                  if pathlib.Path("package.json").is_file():
+                      found["package.json"] = json.loads(pathlib.Path("package.json").read_text()).get("version", "")
+                  if len(found) != 1:
+                      sys.exit(f"expected exactly one of pyproject.toml / package.json with a version, found: {sorted(found)}")
+                  name, value = next(iter(found.items()))
+                  if not value:
+                      sys.exit(f"{name} has no static version (dynamic versions are not supported)")
+                  print(value)
+                  PY
+                  )"
+
+                  if [[ "$manifest_version" != "$version" ]]; then
+                    echo "::error::Tag $TAG != manifest version $manifest_version — bump the manifest in the release PR and re-tag"
+                    exit 1
+                  fi
+
+                  if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"; then
+                    echo "::error::$TAG's commit is not on $DEFAULT_BRANCH — tag the release PR's squash-merge commit"
+                    exit 1
+                  fi
+
+                  echo "VERSION=$version" >> "$GITHUB_ENV"
+
+            - name: Extract release notes from CHANGELOG.md
+              run: |
+                  awk -v v="$VERSION" '
+                    /^## \[/ { if (found) exit; if (index($0, "## [" v "]") == 1) { found = 1; next } }
+                    /^\[[^]]+\]: / { if (found) exit }
+                    found { print }
+                  ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+                  if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/notes.md"; then
+                    echo "::error::CHANGELOG.md has no non-empty '## [$VERSION]' section"
+                    exit 1
+                  fi
+
+            - uses: pnpm/action-setup@v6
+              with:
+                  version: 10
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+                  cache: pnpm
+
+            - name: Build artifacts
+              run: bash -c "$BUILD_COMMAND"
+
+            - name: Create GitHub Release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TAG: ${{ github.ref_name }}
+              run: |
+                  shopt -s nullglob
+                  # shellcheck disable=SC2206 # ARTIFACTS is an intentional glob list
+                  artifacts=($ARTIFACTS)
+                  if [[ ${#artifacts[@]} -eq 0 ]]; then
+                    echo "::error::Build produced no files matching '$ARTIFACTS'"
+                    exit 1
+                  fi
+                  flags=(--verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md")
+                  if [[ "$VERSION" =~ [A-Za-z-] ]]; then
+                    flags+=(--prerelease)
+                  fi
+                  gh release create "$TAG" "${flags[@]}" "${artifacts[@]}"

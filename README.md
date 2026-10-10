@@ -22,6 +22,24 @@ Pullscope is a browser extension that streamlines your GitHub PR workflow by aut
 
 ## 📦 Installation
 
+### From a Release
+
+Download the zip for your browser from the
+[latest release](https://github.com/guidodinello/pullscope/releases/latest)
+(`pullscope-<version>-chrome.zip` or `pullscope-<version>-firefox.zip`).
+
+**Chrome/Chromium/Edge/Brave:**
+
+1. Extract the zip file
+2. Open `chrome://extensions/` and enable "Developer mode"
+3. Click "Load unpacked" and select the extracted folder
+
+**Firefox:**
+
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click "Load Temporary Add-on"
+3. Select the downloaded zip file
+
 ### From Source
 
 1. Clone the repository:
@@ -131,6 +149,23 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - Follow the existing code style
 - Use technology standards
 - Update documentation as needed
+
+### Releasing
+
+Versions follow [SemVer](https://semver.org); [`CHANGELOG.md`](CHANGELOG.md) is curated by
+hand and is the source of the release notes.
+
+1. Open a `chore(release): vX.Y.Z` PR: bump `version` in `package.json`, move
+   `[Unreleased]` under a new `## [X.Y.Z] - YYYY-MM-DD` section, and update the compare
+   links at the bottom.
+2. Squash-merge it.
+3. Tag the merge commit with an **annotated** tag and push it:
+   `git tag -a vX.Y.Z -m vX.Y.Z <merge-sha> && git push origin vX.Y.Z`.
+
+The `Release` workflow then verifies the tag matches `package.json` and is on `main`,
+builds the Chrome and Firefox zips (plus the sources zip), and creates the GitHub
+Release with that changelog section as notes. If verification fails nothing is
+published: fix it, delete the tag (`git push origin :refs/tags/vX.Y.Z`), and re-tag.
 
 ## 📝 License
 
