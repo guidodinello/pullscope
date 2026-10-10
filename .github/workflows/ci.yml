@@ -109,3 +109,26 @@ jobs:
                   name: extension-${{ matrix.browser }}
                   path: .output/${{ matrix.browser == 'firefox' && 'firefox-mv2' || 'chrome-mv3' }}
                   retention-days: 7
+
+    # Single stable check name for the branch ruleset (see dev-standards
+    # templates/ci/python-ci.yml). if: always() so it still runs (and fails) when a
+    # needed job fails; a skipped required check would count as passing.
+    ci:
+        name: CI
+        needs:
+            - lint-and-format
+            - build
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check results
+              env:
+                  RESULTS: ${{ join(needs.*.result, ' ') }}
+              run: |
+                  read -ra results <<< "$RESULTS"
+                  for r in "${results[@]}"; do
+                    if [[ "$r" == "failure" || "$r" == "cancelled" ]]; then
+                      echo "A required job finished as: $r"
+                      exit 1
+                    fi
+                  done
