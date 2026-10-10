@@ -123,12 +123,12 @@ jobs:
         steps:
             - name: Check results
               env:
-                RESULTS: ${{ join(needs.*.result, ' ') }}
+                  RESULTS: ${{ join(needs.*.result, ' ') }}
               run: |
-                read -ra results <<< "$RESULTS"
-                for r in "${results[@]}"; do
-                  if [[ "$r" == "failure" || "$r" == "cancelled" ]]; then
-                    echo "A required job finished as: $r"
-                    exit 1
-                  fi
-                done
+                  read -ra results <<< "$RESULTS"
+                  for r in "${results[@]}"; do
+                    if [[ "$r" == "failure" || "$r" == "cancelled" ]]; then
+                      echo "A required job finished as: $r"
+                      exit 1
+                    fi
+                  done
