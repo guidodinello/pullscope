@@ -51,7 +51,7 @@
         "@types/node": "^24.0.0",
         "@typescript-eslint/eslint-plugin": "^8.46.4",
         "@typescript-eslint/parser": "^8.46.4",
-        "@vitest/ui": "^5.0.0",
+        "@vitest/ui": "^5.0.5",
         "@wxt-dev/module-svelte": "^2.0.5",
         "eslint": "^9.39.1",
         "eslint-plugin-svelte": "^3.13.0",
