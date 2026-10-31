@@ -1,6 +1,14 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { isGitHubPRPage, applyFilters, addFilter, removeFilter, SELECTORS } from "@/lib/github";
+    import {
+        isGitHubPRPage,
+        applyFiltersUntilSearched,
+        areFiltersPresent,
+        getUrlSearchQuery,
+        addFilter,
+        removeFilter,
+        SELECTORS,
+    } from "@/lib/github";
     import { filterStore } from "@/lib/stores/filters";
     import { waitForElement } from "@/lib/utils/dom";
     import { debounce } from "@/lib/utils/debounce";
@@ -28,18 +36,35 @@
         }
 
         try {
-            await waitForElement(SELECTORS.GITHUB_SEARCH, WAIT_TIMEOUTS.INITIAL_LOAD);
+            const searchInput = await waitForElement<HTMLInputElement>(
+                SELECTORS.GITHUB_SEARCH,
+                WAIT_TIMEOUTS.INITIAL_LOAD
+            );
 
             if (enabledFilters.length > 0) {
-                const success = applyFilters(enabledFilters);
+                const activeQuery = getUrlSearchQuery() ?? searchInput.value;
+
+                if (areFiltersPresent(activeQuery, enabledFilters)) {
+                    _filtersApplied = false;
+                    toastMessage = "Filters already applied";
+                    toastType = TOAST_TYPES.INFO;
+                    return;
+                }
+
+                const success = await applyFiltersUntilSearched(
+                    enabledFilters,
+                    WAIT_TIMEOUTS.INITIAL_LOAD,
+                    WAIT_TIMEOUTS.SEARCH_RETRY_INTERVAL
+                );
                 _filtersApplied = success;
 
                 if (success) {
                     toastMessage = `Applied ${enabledFilters.length} filter(s)`;
                     toastType = TOAST_TYPES.SUCCESS;
                 } else {
-                    toastMessage = "Filters already applied";
-                    toastType = TOAST_TYPES.INFO;
+                    logger.error("Filters were set but GitHub did not run the search");
+                    toastMessage = "Failed to apply filters";
+                    toastType = TOAST_TYPES.ERROR;
                 }
             }
         } catch (err) {

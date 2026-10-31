@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The Chrome build failed to load because icons were missing from the output;
+  WXT 0.21 resolves `publicDir` from the project root, so it now points at
+  `src/public` explicitly.
+- Filters are applied again on GitHub's current pull request list, which
+  replaced the `#js-issues-search` input.
 - Filter store initialization no longer registers multiple storage listeners or
   ends up in an inconsistent state when `init()` runs more than once (#6).
 - Message broadcasting handles promise rejections per tab, so a closed tab or a

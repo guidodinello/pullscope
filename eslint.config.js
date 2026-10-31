@@ -43,6 +43,7 @@ export default [
                 HTMLInputElement: "readonly",
                 Element: "readonly",
                 MutationObserver: "readonly",
+                URLSearchParams: "readonly",
                 // WXT globals
                 defineBackground: "readonly",
                 defineContentScript: "readonly",
@@ -97,6 +98,7 @@ export default [
                 HTMLInputElement: "readonly",
                 Element: "readonly",
                 MutationObserver: "readonly",
+                URLSearchParams: "readonly",
                 // WXT globals
                 defineBackground: "readonly",
                 defineContentScript: "readonly",

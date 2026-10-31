@@ -32,6 +32,7 @@ export const TOAST_DURATION = {
 export const WAIT_TIMEOUTS = {
     INITIAL_LOAD: 5000,
     FILTER_TOGGLE: 2000,
+    SEARCH_RETRY_INTERVAL: 500,
     DEFAULT: 5000,
 } as const;
 
