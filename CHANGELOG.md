@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `src/public` explicitly.
 - Filters are applied again on GitHub's current pull request list, which
   replaced the `#js-issues-search` input.
+- The default "Only Open PRs" filter for new installs now uses `state:open`,
+  matching GitHub's default search, so it no longer adds a redundant term and
+  an extra page load on every visit.
 - Filter store initialization no longer registers multiple storage listeners or
   ends up in an inconsistent state when `init()` runs more than once (#6).
 - Message broadcasting handles promise rejections per tab, so a closed tab or a
