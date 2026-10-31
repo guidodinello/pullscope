@@ -4,6 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 // See https://wxt.dev/api/config.html
 export default defineConfig({
     srcDir: "src",
+    // WXT resolves publicDir from the project root, not srcDir
+    publicDir: "src/public",
     modules: ["@wxt-dev/module-svelte"],
     manifest: {
         name: "Pullscope",

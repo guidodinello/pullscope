@@ -2,7 +2,8 @@ import { logger } from "@/lib/utils/logger";
 import { GITHUB_PATTERNS } from "@/lib/constants";
 
 export const SELECTORS = {
-    GITHUB_SEARCH: "#js-issues-search",
+    // Current PR list search, with the legacy input as a fallback
+    GITHUB_SEARCH: "#repo-pulls-dashboard-filter-input, #js-issues-search",
 } as const;
 
 export const isGitHubPRPage = (url: string): boolean => GITHUB_PATTERNS.PR_PAGE_REGEX.test(url);
@@ -26,6 +27,18 @@ function isFilterPresent(searchValue: string, filter: string): boolean {
 
     // Check if all filter tokens are present in search tokens
     return filterTokens.every((token) => searchTokens.includes(token));
+}
+
+export function areFiltersPresent(searchValue: string, filterValues: string[]): boolean {
+    return filterValues.every((filter) => isFilterPresent(searchValue, filter));
+}
+
+/**
+ * Get the search query GitHub is showing results for, or null when the URL
+ * has none (GitHub's default search)
+ */
+export function getUrlSearchQuery(): string | null {
+    return new URLSearchParams(window.location.search).get("q");
 }
 
 function triggerSearch(searchInput: HTMLInputElement): void {
@@ -93,6 +106,37 @@ export function applyFilters(filterValues: string[]): boolean {
 
     logger.info(`Applied ${result.count} filter(s)`);
     return true;
+}
+
+/**
+ * Apply filters and resubmit until GitHub navigates to a search containing them.
+ * GitHub's search drops input made before its scripts hydrate, so a single
+ * submit right after page load can be silently lost.
+ * @returns Whether the search ran with all filters before the timeout
+ */
+export async function applyFiltersUntilSearched(
+    filterValues: string[],
+    timeout: number,
+    retryInterval: number
+): Promise<boolean> {
+    const deadline = Date.now() + timeout;
+
+    while (Date.now() < deadline) {
+        const searchInput = getSearchInputElement();
+        // The value may already hold the filters from a submit that was dropped
+        if (searchInput && !applyFilters(filterValues)) {
+            triggerSearch(searchInput);
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, retryInterval));
+
+        const query = getUrlSearchQuery();
+        if (query !== null && areFiltersPresent(query, filterValues)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 export function addFilter(filterValue: string): boolean {
