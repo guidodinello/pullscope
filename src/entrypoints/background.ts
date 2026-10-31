@@ -16,7 +16,7 @@ const DEFAULT_FILTERS = [
     },
     {
         name: "Only Open PRs",
-        value: "is:open",
+        value: "state:open",
         enabled: true,
     },
     {
