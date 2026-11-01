@@ -40,6 +40,8 @@ jobs:
         runs-on: ${{ fromJSON(vars.CI_RUNNERS || '["ubuntu-latest"]') }}
         permissions:
             contents: write
+        outputs:
+            prerelease: ${{ steps.verify.outputs.prerelease }}
         env:
             # `wxt zip` writes pullscope-<version>-chrome.zip; `wxt zip -b firefox`
             # writes -firefox.zip and -sources.zip (what past releases attached).
@@ -54,6 +56,7 @@ jobs:
                   persist-credentials: false
 
             - name: Verify tag, version, and branch
+              id: verify
               env:
                   TAG: ${{ github.ref_name }}
                   DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -96,6 +99,11 @@ jobs:
                   fi
 
                   echo "VERSION=$version" >> "$GITHUB_ENV"
+                  if [[ "$version" =~ [A-Za-z-] ]]; then
+                    echo "prerelease=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "prerelease=false" >> "$GITHUB_OUTPUT"
+                  fi
 
             - name: Extract release notes from CHANGELOG.md
               run: |
@@ -138,3 +146,75 @@ jobs:
                     flags+=(--prerelease)
                   fi
                   gh release create "$TAG" "${flags[@]}" "${artifacts[@]}"
+
+    # Submits the release's Firefox build as a new version of the listed add-on on
+    # addons.mozilla.org (AMO) with `web-ext sign --channel=listed`. It is a
+    # separate job so a failed submission can be retried with "Re-run failed jobs"
+    # without re-running (and failing) `gh release create` above. It reuses the
+    # exact zips attached to the GitHub Release instead of rebuilding them.
+    #
+    # Needs repo secrets AMO_JWT_ISSUER and AMO_JWT_SECRET (an AMO API key:
+    # https://addons.mozilla.org/developers/addon/api/key/). Pre-releases are
+    # skipped: a listed AMO version goes public once Mozilla approves it.
+    # The job submits and exits (--approval-timeout=0); review happens on AMO.
+    firefox:
+        name: Submit to Firefox Add-ons
+        needs: release
+        if: needs.release.outputs.prerelease == 'false'
+        runs-on: ${{ fromJSON(vars.CI_RUNNERS || '["ubuntu-latest"]') }}
+        permissions:
+            contents: read
+        env:
+            # Exact version; bump deliberately (web-ext's sign/submit flags change between majors).
+            WEB_EXT_VERSION: 10.8.0
+        steps:
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+              with:
+                  node-version: "24"
+
+            - name: Download the Firefox build, sources and notes from the release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TAG: ${{ github.ref_name }}
+              run: |
+                  mkdir -p "$RUNNER_TEMP/amo/extension"
+                  cd "$RUNNER_TEMP/amo"
+                  gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+                    --pattern '*-firefox.zip' --pattern '*-sources.zip'
+                  shopt -s nullglob
+                  firefox=(*-firefox.zip) sources=(*-sources.zip)
+                  if [[ ${#firefox[@]} -ne 1 || ${#sources[@]} -ne 1 ]]; then
+                    echo "::error::Expected exactly one -firefox.zip and one -sources.zip on release $TAG"
+                    exit 1
+                  fi
+                  unzip -q "${firefox[0]}" -d extension
+                  echo "SOURCES_ZIP=$RUNNER_TEMP/amo/${sources[0]}" >> "$GITHUB_ENV"
+
+                  # The release notes become the AMO version's release notes.
+                  gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body > notes.md
+                  python3 - <<'PY'
+                  import json
+                  import pathlib
+
+                  notes = pathlib.Path("notes.md").read_text().strip()
+                  metadata = {"version": {"release_notes": {"en-US": notes}}}
+                  pathlib.Path("metadata.json").write_text(json.dumps(metadata))
+                  PY
+
+            - name: Submit to addons.mozilla.org
+              env:
+                  WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+                  WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+              run: |
+                  if [[ -z "$WEB_EXT_API_KEY" || -z "$WEB_EXT_API_SECRET" ]]; then
+                    echo "::error::Repo secrets AMO_JWT_ISSUER and AMO_JWT_SECRET must be set"
+                    exit 1
+                  fi
+                  cd "$RUNNER_TEMP/amo"
+                  npx --yes "web-ext@$WEB_EXT_VERSION" sign \
+                    --channel=listed \
+                    --source-dir=extension \
+                    --artifacts-dir=signed \
+                    --upload-source-code="$SOURCES_ZIP" \
+                    --amo-metadata=metadata.json \
+                    --approval-timeout=0
