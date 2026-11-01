@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-01
+
 ### Added
 
 - Vitest test suite with validation tests (#6).
@@ -91,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom filter management using GitHub's search syntax.
 - Chrome/Chromium (Manifest V3) and Firefox (Manifest V2) builds.
 
-[Unreleased]: https://github.com/guidodinello/pullscope/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/guidodinello/pullscope/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/guidodinello/pullscope/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/guidodinello/pullscope/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/guidodinello/pullscope/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/guidodinello/pullscope/releases/tag/v0.0.1
