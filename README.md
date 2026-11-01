@@ -167,6 +167,13 @@ builds the Chrome and Firefox zips (plus the sources zip), and creates the GitHu
 Release with that changelog section as notes. If verification fails nothing is
 published: fix it, delete the tag (`git push origin :refs/tags/vX.Y.Z`), and re-tag.
 
+A second job then submits the release's Firefox zip (with the sources zip and the
+notes) to [addons.mozilla.org](https://addons.mozilla.org/en-US/firefox/addon/pullscope/)
+as a new listed version, using `web-ext sign`. It needs the repo secrets
+`AMO_JWT_ISSUER` and `AMO_JWT_SECRET` (an AMO API key from
+<https://addons.mozilla.org/developers/addon/api/key/>), skips pre-releases, and does
+not wait for Mozilla's review. If it fails, fix the cause and use "Re-run failed jobs".
+
 ## 📝 License
 
 MIT License - see [LICENSE](LICENSE) file for details
