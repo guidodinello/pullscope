@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Bumped `vitest` to 5.0.5 and `brace-expansion` to patched versions to close
+  Dependabot alerts #121, #122, #128 and #129. All of it is dev tooling; nothing
+  here ships in the built extension (#31).
+
 ## [0.1.1] - 2026-11-01
 
 ### Added
