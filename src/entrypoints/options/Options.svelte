@@ -3,6 +3,7 @@
     import ErrorDisplay from "@/lib/components/ErrorDisplay.svelte";
     import Icon from "@/lib/components/Icon.svelte";
     import type { PRFilter } from "@/lib/types/filter";
+    import { onDestroy } from "svelte";
     import { useFilters } from "@/lib/compositions/filter-management.svelte";
     import { cn } from "@/lib/utils/cn";
     import { logger } from "@/lib/utils/logger";
@@ -13,9 +14,29 @@
     let editingFilter = $state<PRFilter | null>(null);
     let showAddForm = $state(false);
 
-    async function handleDeleteFilter(id: string) {
-        if (!confirm("Are you sure you want to delete this filter?")) return;
+    // Two-step delete. window.confirm() can't be used here: Chrome embeds this page
+    // in chrome://extensions (options_ui.open_in_tab: false) and silently suppresses
+    // JS dialogs there, so confirm() returns false without showing anything (#8).
+    const DELETE_CONFIRM_TIMEOUT_MS = 3000;
+    let pendingDeleteId = $state<string | null>(null);
+    let pendingDeleteTimer: ReturnType<typeof setTimeout> | undefined;
 
+    function clearPendingDelete() {
+        clearTimeout(pendingDeleteTimer);
+        pendingDeleteId = null;
+    }
+
+    onDestroy(clearPendingDelete);
+
+    async function handleDeleteFilter(id: string) {
+        if (pendingDeleteId !== id) {
+            clearTimeout(pendingDeleteTimer);
+            pendingDeleteId = id;
+            pendingDeleteTimer = setTimeout(clearPendingDelete, DELETE_CONFIRM_TIMEOUT_MS);
+            return;
+        }
+
+        clearPendingDelete();
         const success = await filterManager.deleteFilter(id);
         if (!success) {
             logger.error("Failed to delete filter:", id);
@@ -162,14 +183,26 @@
                             >
                                 <Icon name="edit" class="size-5" />
                             </button>
-                            <button
-                                class="text-error hover:bg-error-light focus:ring-error rounded p-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                title="Delete filter"
-                                onclick={() => handleDeleteFilter(filter.id)}
-                                aria-label={`Delete ${filter.name}`}
-                            >
-                                <Icon name="delete" class="size-5" />
-                            </button>
+                            {#if pendingDeleteId === filter.id}
+                                <button
+                                    class="bg-error focus:ring-error flex items-center gap-1 rounded px-2 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                                    title="Click again to delete"
+                                    onclick={() => handleDeleteFilter(filter.id)}
+                                    aria-label={`Confirm delete ${filter.name}`}
+                                >
+                                    <Icon name="delete" class="size-5" />
+                                    Confirm?
+                                </button>
+                            {:else}
+                                <button
+                                    class="text-error hover:bg-error-light focus:ring-error rounded p-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                                    title="Delete filter"
+                                    onclick={() => handleDeleteFilter(filter.id)}
+                                    aria-label={`Delete ${filter.name}`}
+                                >
+                                    <Icon name="delete" class="size-5" />
+                                </button>
+                            {/if}
                         </div>
                     </div>
                 {/each}

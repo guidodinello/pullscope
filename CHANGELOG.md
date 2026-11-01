@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Deleting a filter from the options page did nothing in Chrome. The page is
+  embedded in `chrome://extensions`, where Chrome silently suppresses
+  `confirm()`; deletion now uses an in-page "Confirm?" second click (#8).
 - The Chrome build failed to load because icons were missing from the output;
   WXT 0.21 resolves `publicDir` from the project root, so it now points at
   `src/public` explicitly.
